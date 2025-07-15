@@ -28,33 +28,33 @@ import net.ludocrypt.limlib.api.world.maze.DilateMaze;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.CellState;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Vec2i;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.loot.LootTables;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.RandomState;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 
 	public static final Codec<CommunalCorridorsChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
 		return instance.group(BiomeSource.CODEC.fieldOf("biome_source").stable().forGetter((chunkGenerator) -> {
-			return chunkGenerator.populationSource;
+			return chunkGenerator.biomeSource;
 		}), NbtGroup.CODEC.fieldOf("group").stable().forGetter((chunkGenerator) -> {
 			return chunkGenerator.nbtGroup;
 		}), Codec.INT.fieldOf("maze_width").stable().forGetter((chunkGenerator) -> {
@@ -136,7 +136,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	protected Codec<? extends ChunkGenerator> getCodec() {
+	protected Codec<? extends ChunkGenerator> codec() {
 		return CODEC;
 	}
 
@@ -150,7 +150,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 	 * @param random  generator
 	 * @return MazeComponent
 	 */
-	public MazeComponent newGrandMaze(ChunkRegion region, Vec2i mazePos, int width, int height, RandomGenerator random) {
+	public MazeComponent newGrandMaze(WorldGenRegion region, Vec2i mazePos, int width, int height, RandomSource random) {
 
 		// Find the position of the grandMaze that contains the current maze
 		BlockPos grandMazePos = new BlockPos(mazePos.getX() - Math
@@ -167,8 +167,8 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 		} else {
 			grandMaze = new DepthFirstMaze(grandMazeGenerator.width / grandMazeGenerator.dilation,
 				grandMazeGenerator.height / grandMazeGenerator.dilation,
-				RandomGenerator
-					.createLegacy(
+				RandomSource
+					.create(
 						LimlibHelper.blockSeed(grandMazePos.getX(), grandMazeGenerator.seedModifier, grandMazePos.getZ())));
 			grandMaze.generateMaze();
 			grandMazeGenerator.grandMazeMap.put(grandMazePos, grandMaze);
@@ -281,20 +281,20 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 		return combinedMaze;
 	}
 
-	public MazeComponent newMaze(BlockPos mazePos, int width, int height, RandomGenerator random) {
+	public MazeComponent newMaze(BlockPos mazePos, int width, int height, RandomSource random) {
 		MazeComponent maze = new DepthFirstMaze(width, height, random);
 		maze.generateMaze();
 		return maze;
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateNoise(ChunkRegion region, ChunkStatus targetStatus, Executor executor,
-			ServerWorld world, ChunkGenerator generator, StructureTemplateManager structureTemplateManager,
-			ServerLightingProvider lightingProvider,
-			Function<Chunk, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> fullChunkConverter, List<Chunk> chunks,
-			Chunk chunk) {
+	public CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion region, ChunkStatus targetStatus, Executor executor,
+			ServerLevel world, ChunkGenerator generator, StructureTemplateManager structureTemplateManager,
+			ThreadedLevelLightEngine lightingProvider,
+			Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> fullChunkConverter, List<ChunkAccess> chunks,
+			ChunkAccess chunk) {
 		this.grandMazeGenerator
-			.generateMaze(new Vec2i(chunk.getPos().getStartPos()), region, this::newGrandMaze, this::decorateGrandCell);
+			.generateMaze(new Vec2i(chunk.getPos().getWorldPosition()), region, this::newGrandMaze, this::decorateGrandCell);
 //		this.level2mazeGenerator
 //			.generateMaze(startPos, region.getSeed(), this::newMaze, (pos, mazePos, maze, cellState,
 //					thickness) -> decorateCell(pos, mazePos, maze, cellState, thickness, region));
@@ -412,8 +412,8 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 //
 //	}
 
-	public void decorateGrandCell(ChunkRegion region, Vec2i cellPos2, Vec2i mazePos2, MazeComponent maze, CellState state,
-			Vec2i thickness, RandomGenerator mazeRandom) {
+	public void decorateGrandCell(WorldGenRegion region, Vec2i cellPos2, Vec2i mazePos2, MazeComponent maze, CellState state,
+			Vec2i thickness, RandomSource mazeRandom) {
 
 		BlockPos pos = cellPos2.toBlock();
 		BlockPos mazePos = mazePos2.toBlock();
@@ -421,14 +421,14 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 		for (int x = 0; x < thickness.getX(); x++) {
 
 			for (int z = 0; z < thickness.getY(); z++) {
-				region.setBlockState(pos.add(x, 0, z), Blocks.OAK_PLANKS.getDefaultState(), Block.FORCE_STATE, 0);
+				region.setBlock(pos.offset(x, 0, z), Blocks.OAK_PLANKS.defaultBlockState(), Block.UPDATE_KNOWN_SHAPE, 0);
 //				region.setBlockState(pos.add(x, 16, z), Blocks.OAK_PLANKS.getDefaultState(), Block.FORCE_STATE, 0);
 			}
 
 		}
 
-		RandomGenerator random = RandomGenerator
-			.createLegacy(LimlibHelper
+		RandomSource random = RandomSource
+			.create(LimlibHelper
 				.blockSeed(pos.getX(), LimlibHelper.blockSeed(mazePos.getZ(), region.getSeed(), mazePos.getX()),
 					pos.getZ()));
 		String dir = "nesw";
@@ -453,17 +453,17 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 
 			if (random.nextDouble() > 0.67289445D) {
 				this
-					.generateNbt(region, pos.up(1),
+					.generateNbt(region, pos.above(1),
 						nbtGroup.pick("communal_corridors_maze/communal_corridors_" + dir, random));
 			} else {
 				this
-					.generateNbt(region, pos.up(1),
+					.generateNbt(region, pos.above(1),
 						nbtGroup.pick("communal_corridors_maze/communal_corridors_" + dir + "_decorated", random));
 			}
 
 		} else {
-			RandomGenerator fullChunkRandom = RandomGenerator
-				.createLegacy(region.getSeed() + LimlibHelper
+			RandomSource fullChunkRandom = RandomSource
+				.create(region.getSeed() + LimlibHelper
 					.blockSeed(pos.getX() - Math.floorMod(pos.getX(), 16), pos.getZ() - Math.floorMod(pos.getZ(), 16),
 						-69420));
 			Manipulation manipulation = random.nextBoolean() ? Manipulation.NONE : Manipulation.TOP_LEFT_BOTTOM_RIGHT;
@@ -508,8 +508,8 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 
 						for (int y = 0; y < 3; y++) {
 							region
-								.setBlockState(pos.add(x, 11 + y, z), CornerBlocks.DRYWALL.getDefaultState(),
-									Block.FORCE_STATE, 0);
+								.setBlock(pos.offset(x, 11 + y, z), CornerBlocks.DRYWALL.defaultBlockState(),
+									Block.UPDATE_KNOWN_SHAPE, 0);
 						}
 
 					}
@@ -524,7 +524,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 
 					if (Math.floorMod(state.getPosition().getX(), 2) == 0 && Math
 						.floorMod(state.getPosition().getY(), 2) == 0) {
-						generateNbt(region, pos.up(), nbtGroup.pick("communal_corridors_decorated_big", random),
+						generateNbt(region, pos.above(), nbtGroup.pick("communal_corridors_decorated_big", random),
 							manipulation);
 					}
 
@@ -536,16 +536,16 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 			if (!skipSmallRooms) {
 
 				if (random.nextDouble() < 0.2375625D) {
-					generateNbt(region, pos.up(), nbtGroup.pick("communal_corridors", random), manipulation);
+					generateNbt(region, pos.above(), nbtGroup.pick("communal_corridors", random), manipulation);
 				} else {
 
 					if (skipSecondFloor) {
-						generateNbt(region, pos.up(), nbtGroup.pick("communal_corridors_decorated", random), manipulation);
+						generateNbt(region, pos.above(), nbtGroup.pick("communal_corridors_decorated", random), manipulation);
 						return;
 					} else {
 						String group = nbtGroup
 							.chooseGroup(random, "communal_corridors_decorated", "communal_corridors_two_stories");
-						generateNbt(region, pos.up(), nbtGroup.pick(group, random), manipulation);
+						generateNbt(region, pos.above(), nbtGroup.pick(group, random), manipulation);
 
 						if (group.equals("communal_corridors_two_stories")) {
 							return;
@@ -558,7 +558,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 			}
 
 			if (!skipSecondFloor) {
-				generateNbt(region, pos.up(6), nbtGroup.pick("communal_corridors_decorated", random), manipulation);
+				generateNbt(region, pos.above(6), nbtGroup.pick("communal_corridors_decorated", random), manipulation);
 			}
 
 		}
@@ -571,63 +571,63 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	protected Identifier getContainerLootTable(LootableContainerBlockEntity container) {
-		return container.getCachedState().isOf(Blocks.CHEST) ? LootTables.WOODLAND_MANSION_CHEST
-				: LootTables.SPAWN_BONUS_CHEST;
+	protected ResourceLocation getContainerLootTable(RandomizableContainerBlockEntity container) {
+		return container.getBlockState().is(Blocks.CHEST) ? BuiltInLootTables.WOODLAND_MANSION
+				: BuiltInLootTables.SPAWN_BONUS_CHEST;
 	}
 
 	@Override
-	protected void modifyStructure(ChunkRegion region, BlockPos pos, BlockState state, Optional<NbtCompound> nbt) {
+	protected void modifyStructure(WorldGenRegion region, BlockPos pos, BlockState state, Optional<CompoundTag> nbt) {
 		super.modifyStructure(region, pos, state, nbt);
 
-		if (state.isOf(CornerBlocks.WOODEN_RADIO)) {
-			int i = RandomGenerator.createLegacy(region.getSeed() + LimlibHelper.blockSeed(pos)).nextInt(3);
+		if (state.is(CornerBlocks.WOODEN_RADIO)) {
+			int i = RandomSource.create(region.getSeed() + LimlibHelper.blockSeed(pos)).nextInt(3);
 
 			switch (i) {
 				case 1:
 					region
-						.setBlockState(pos,
-							CornerBlocks.TUNED_RADIO.getDefaultState().with(RadioBlock.FACING, state.get(RadioBlock.FACING)),
-							Block.NOTIFY_ALL, 1);
+						.setBlock(pos,
+							CornerBlocks.TUNED_RADIO.defaultBlockState().setValue(RadioBlock.FACING, state.getValue(RadioBlock.FACING)),
+							Block.UPDATE_ALL, 1);
 					break;
 				case 2:
 					region
-						.setBlockState(pos,
+						.setBlock(pos,
 							CornerBlocks.BROKEN_RADIO
-								.getDefaultState()
-								.with(RadioBlock.FACING, state.get(RadioBlock.FACING)),
-							Block.NOTIFY_ALL, 1);
+								.defaultBlockState()
+								.setValue(RadioBlock.FACING, state.getValue(RadioBlock.FACING)),
+							Block.UPDATE_ALL, 1);
 					break;
 				case 0:
 				default:
 					break;
 			}
 
-		} else if (state.isOf(Blocks.RED_STAINED_GLASS)) {
-			RandomGenerator random = RandomGenerator.createLegacy(region.getSeed() + LimlibHelper.blockSeed(pos));
+		} else if (state.is(Blocks.RED_STAINED_GLASS)) {
+			RandomSource random = RandomSource.create(region.getSeed() + LimlibHelper.blockSeed(pos));
 
 			if (random.nextDouble() < 0.3765568D) {
-				region.setBlockState(pos, Blocks.COBWEB.getDefaultState(), Block.NOTIFY_ALL, 1);
+				region.setBlock(pos, Blocks.COBWEB.defaultBlockState(), Block.UPDATE_ALL, 1);
 			} else {
-				region.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL, 1);
+				region.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL, 1);
 			}
 
-		} else if (state.isOf(Blocks.CHISELED_BOOKSHELF)) {
+		} else if (state.is(Blocks.CHISELED_BOOKSHELF)) {
 
 			double scale = 10.0D;
 
-			DoublePerlinNoiseSampler noise = DoublePerlinNoiseSampler
-				.method_31927(RandomGenerator.createLegacy(region.getSeed() + 5), 1, 0.2, 0.6, 0.7);
+			NormalNoise noise = NormalNoise
+				.create(RandomSource.create(region.getSeed() + 5), 1, 0.2, 0.6, 0.7);
 
-			if (noise.sample((pos.getX()) / scale, (pos.getZ()) / scale, (pos.getY()) / scale) > 0) {
+			if (noise.getValue((pos.getX()) / scale, (pos.getZ()) / scale, (pos.getY()) / scale) > 0) {
 				BlockState deepState = RadioBlock.of(state, CornerBlocks.DEEP_BOOKSHELF);
-				region.setBlockState(pos, deepState, Block.NOTIFY_ALL, 0);
+				region.setBlock(pos, deepState, Block.UPDATE_ALL, 0);
 
 				if (nbt.isPresent()) {
 					BlockEntity blockEntity = region.getBlockEntity(pos);
 
 					if (blockEntity != null) {
-						blockEntity.setCachedState(deepState);
+						blockEntity.setBlockState(deepState);
 					}
 
 				}
@@ -639,7 +639,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public int getWorldHeight() {
+	public int getGenDepth() {
 		return 128;
 	}
 
@@ -649,12 +649,12 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public int getMinimumY() {
+	public int getMinY() {
 		return 0;
 	}
 
 	@Override
-	public void method_40450(List<String> list, RandomState randomState, BlockPos pos) {
+	public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos pos) {
 	}
 
 }

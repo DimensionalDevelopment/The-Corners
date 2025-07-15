@@ -5,13 +5,13 @@ import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder;
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.entity.CornerBoatEntity.CornerBoat;
 import net.ludocrypt.corners.entity.DimensionalPaintingEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.vehicle.Boat;
 
 public class CornerEntities {
 
@@ -25,16 +25,16 @@ public class CornerEntities {
 			.build());
 //	public static final EntityType<CorvusEntity> CORVUS_ENTITY = get("corvus", QuiltEntityTypeBuilder.createMob().entityFactory(CorvusEntity::new).spawnGroup(SpawnGroup.AMBIENT)
 //			.setDimensions(new EntityDimensions(0.375F, 0.875F, false)).maxBlockTrackingRange(10).defaultAttributes(CorvusEntity.createAttributes()).build());
-	public static final EntityType<BoatEntity> GAIA_BOAT = get("gaia_boat",
+	public static final EntityType<Boat> GAIA_BOAT = get("gaia_boat",
 		QuiltEntityTypeBuilder
-			.create(SpawnGroup.MISC, CornerBoat.GAIA.factory(false))
-			.setDimensions(EntityDimensions.changing(1.375f, 0.5625f))
+			.create(MobCategory.MISC, CornerBoat.GAIA.factory(false))
+			.setDimensions(EntityDimensions.scalable(1.375f, 0.5625f))
 			.maxChunkTrackingRange(10)
 			.build());
-	public static final EntityType<BoatEntity> GAIA_CHEST_BOAT = get("gaia_chest_boat",
+	public static final EntityType<Boat> GAIA_CHEST_BOAT = get("gaia_chest_boat",
 		QuiltEntityTypeBuilder
-			.create(SpawnGroup.MISC, CornerBoat.GAIA.factory(true))
-			.setDimensions(EntityDimensions.changing(1.375f, 0.5625f))
+			.create(MobCategory.MISC, CornerBoat.GAIA.factory(true))
+			.setDimensions(EntityDimensions.scalable(1.375f, 0.5625f))
 			.maxChunkTrackingRange(10)
 			.build());
 
@@ -42,7 +42,7 @@ public class CornerEntities {
 	}
 
 	public static <E extends Entity, T extends EntityType<E>> T get(String id, T entity) {
-		return Registry.register(Registries.ENTITY_TYPE, TheCorners.id(id), entity);
+		return Registry.register(BuiltInRegistries.ENTITY_TYPE, TheCorners.id(id), entity);
 	}
 
 }

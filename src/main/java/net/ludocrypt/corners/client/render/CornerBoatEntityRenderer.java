@@ -6,32 +6,33 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 
 import net.ludocrypt.corners.entity.CornerBoatEntity;
-import net.minecraft.client.render.entity.BoatEntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.model.BoatEntityModel;
-import net.minecraft.client.render.entity.model.ChestBoatEntityModel;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.model.BoatModel;
+import net.minecraft.client.model.ChestBoatModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.BoatRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
-public final class CornerBoatEntityRenderer extends BoatEntityRenderer {
+public final class CornerBoatEntityRenderer extends BoatRenderer {
 
-	public CornerBoatEntityRenderer(EntityRendererFactory.Context context, boolean chest,
+	public CornerBoatEntityRenderer(EntityRendererProvider.Context context, boolean chest,
 			CornerBoatEntity.CornerBoat boatData) {
 		super(context, chest);
 		var id = boatData.id();
-		var texture = new Identifier(id.getNamespace(),
+		var texture = new ResourceLocation(id.getNamespace(),
 			"textures/entity/" + (chest ? "chest_boat/" : "boat/") + id.getPath() + ".png");
-		var rootPart = context.getPart(getModelLayer(boatData, chest));
-		var model = chest ? new ChestBoatEntityModel(rootPart) : new BoatEntityModel(rootPart);
-		this.texturesAndModels = this.texturesAndModels
+		var rootPart = context.bakeLayer(getModelLayer(boatData, chest));
+		var model = chest ? new ChestBoatModel(rootPart) : new BoatModel(rootPart);
+		this.boatResources = this.boatResources
 			.entrySet()
 			.stream()
 			.collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, entry -> Pair.of(texture, model)));
 	}
 
-	public static EntityModelLayer getModelLayer(CornerBoatEntity.CornerBoat boat, boolean chest) {
+	public static ModelLayerLocation getModelLayer(CornerBoatEntity.CornerBoat boat, boolean chest) {
 		var id = boat.id();
-		return new EntityModelLayer(new Identifier(id.getNamespace(), (chest ? "chest_boat/" : "boat/") + id.getPath()),
+		return new ModelLayerLocation(new ResourceLocation(id.getNamespace(), (chest ? "chest_boat/" : "boat/") + id.getPath()),
 			"main");
 	}
 

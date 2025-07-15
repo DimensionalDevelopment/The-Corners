@@ -5,15 +5,15 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.ludocrypt.limlib.api.world.maze.DepthLikeMaze;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 
 public class StraightDepthFirstMaze extends DepthLikeMaze {
 
-	public RandomGenerator random;
+	public RandomSource random;
 	public double bias;
 
-	public StraightDepthFirstMaze(int width, int height, RandomGenerator RandomGenerator, double bias) {
+	public StraightDepthFirstMaze(int width, int height, RandomSource RandomGenerator, double bias) {
 		super(width, height);
 		this.random = RandomGenerator;
 		this.bias = bias;
@@ -66,8 +66,8 @@ public class StraightDepthFirstMaze extends DepthLikeMaze {
 
 	}
 
-	public NbtCompound dir(Vec2i vec, Face dir) {
-		NbtCompound appendage = new NbtCompound();
+	public CompoundTag dir(Vec2i vec, Face dir) {
+		CompoundTag appendage = new CompoundTag();
 		appendage.putByte("dir", (byte) dir.ordinal());
 		cellState(vec).getExtra().put("dir", appendage);
 		return appendage;

@@ -1,7 +1,7 @@
 package net.ludocrypt.corners.util;
 
-import net.minecraft.registry.Holder;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.sounds.SoundEvent;
 
 public class RadioSoundTable {
 

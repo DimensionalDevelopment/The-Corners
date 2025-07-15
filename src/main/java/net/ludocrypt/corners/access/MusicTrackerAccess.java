@@ -1,8 +1,7 @@
 package net.ludocrypt.corners.access;
 
 import java.util.List;
-
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public interface MusicTrackerAccess {
 

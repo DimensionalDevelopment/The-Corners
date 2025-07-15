@@ -13,17 +13,17 @@ import com.google.common.collect.Lists;
 
 import net.ludocrypt.corners.access.MusicTrackerAccess;
 import net.ludocrypt.corners.config.CornerConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.MusicTracker;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.sounds.MusicManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
-@Mixin(MusicTracker.class)
+@Mixin(MusicManager.class)
 public class MusicTrackerMixin implements MusicTrackerAccess {
 
 	@Shadow
 	@Final
-	private MinecraftClient client;
+	private Minecraft client;
 	@Unique
 	private List<BlockPos> radioPositions = Lists.newArrayList();
 
@@ -34,12 +34,12 @@ public class MusicTrackerMixin implements MusicTrackerAccess {
 		if (CornerConfig.get().delayMusicWithRadio && !this.getRadioPositions().isEmpty() && !this
 			.getRadioPositions()
 			.stream()
-			.filter((pos) -> client.player != null && client.player.squaredDistanceTo(Vec3d.ofCenter(pos)) < Math
+			.filter((pos) -> client.player != null && client.player.distanceToSqr(Vec3.atCenterOf(pos)) < Math
 				.pow(24.0D, 2.0D))
 			.toList()
 			.isEmpty()) {
 
-			if (client.world == null) {
+			if (client.level == null) {
 				this.getRadioPositions().clear();
 			}
 

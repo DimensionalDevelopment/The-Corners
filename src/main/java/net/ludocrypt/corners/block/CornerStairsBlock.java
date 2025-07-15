@@ -1,11 +1,11 @@
 package net.ludocrypt.corners.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StairsBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class CornerStairsBlock extends StairsBlock {
+public class CornerStairsBlock extends StairBlock {
 
-	public CornerStairsBlock(BlockState baseBlockState, Settings settings) {
+	public CornerStairsBlock(BlockState baseBlockState, Properties settings) {
 		super(baseBlockState, settings);
 	}
 

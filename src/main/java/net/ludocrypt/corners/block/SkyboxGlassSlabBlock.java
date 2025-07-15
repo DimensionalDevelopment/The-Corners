@@ -1,54 +1,54 @@
 package net.ludocrypt.corners.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SkyboxGlassSlabBlock extends SlabBlock {
 
-	public SkyboxGlassSlabBlock(Settings settings) {
+	public SkyboxGlassSlabBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public VoxelShape getCameraCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return super.getOutlineShape(state, world, pos, context);
+	public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return super.getShape(state, world, pos, context);
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public boolean isSideInvisible(BlockState state, BlockState stateFrom, Direction direction) {
+	public boolean skipRendering(BlockState state, BlockState stateFrom, Direction direction) {
 
-		if (stateFrom.isOf(this)) {
+		if (stateFrom.is(this)) {
 
-			if (state.get(TYPE).equals(SlabType.TOP)) {
-				return stateFrom.get(TYPE).equals(SlabType.TOP) || stateFrom.get(TYPE).equals(SlabType.DOUBLE);
-			} else if (state.get(TYPE).equals(SlabType.BOTTOM)) {
-				return stateFrom.get(TYPE).equals(SlabType.BOTTOM) || stateFrom.get(TYPE).equals(SlabType.DOUBLE);
-			} else if (state.get(TYPE).equals(SlabType.DOUBLE)) {
-				return super.isSideInvisible(state, stateFrom, direction);
+			if (state.getValue(TYPE).equals(SlabType.TOP)) {
+				return stateFrom.getValue(TYPE).equals(SlabType.TOP) || stateFrom.getValue(TYPE).equals(SlabType.DOUBLE);
+			} else if (state.getValue(TYPE).equals(SlabType.BOTTOM)) {
+				return stateFrom.getValue(TYPE).equals(SlabType.BOTTOM) || stateFrom.getValue(TYPE).equals(SlabType.DOUBLE);
+			} else if (state.getValue(TYPE).equals(SlabType.DOUBLE)) {
+				return super.skipRendering(state, stateFrom, direction);
 			} else {
 				return false;
 			}
 
 		} else {
-			return super.isSideInvisible(state, stateFrom, direction);
+			return super.skipRendering(state, stateFrom, direction);
 		}
 
 	}
 
 	@Override
-	public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
+	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
 		return 1.0F;
 	}
 
 	@Override
-	public boolean isTranslucent(BlockState state, BlockView world, BlockPos pos) {
+	public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
 		return true;
 	}
 

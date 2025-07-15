@@ -5,45 +5,45 @@ import com.mojang.serialization.Codec;
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.block.RadioBlock;
 import net.ludocrypt.corners.init.CornerBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.VineBlock;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.util.FeatureContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-public class GaiaTreeFeature extends Feature<DefaultFeatureConfig> {
+public class GaiaTreeFeature extends Feature<NoneFeatureConfiguration> {
 
-	public GaiaTreeFeature(Codec<DefaultFeatureConfig> codec) {
+	public GaiaTreeFeature(Codec<NoneFeatureConfiguration> codec) {
 		super(codec);
 	}
 
 	@Override
-	public boolean place(FeatureContext<DefaultFeatureConfig> context) {
-		RandomGenerator random = context.getRandom();
-		StructureWorldAccess world = context.getWorld();
-		BlockPos pos = context.getOrigin().toImmutable();
-		BlockState stump = CornerBlocks.STRIPPED_GAIA_LOG.getDefaultState();
-		BlockState leaf = CornerBlocks.GAIA_LEAVES.getDefaultState().with(LeavesBlock.DISTANCE, 1);
-		trySetState(world, pos.up(), stump);
-		trySetState(world, pos.down(), stump);
-		trySetState(world, pos.up().up(), leaf);
-		trySetState(world, pos.up().north(), leaf);
-		trySetState(world, pos.up().east(), leaf);
-		trySetState(world, pos.up().south(), leaf);
-		trySetState(world, pos.up().west(), leaf);
-		trySetState(world, pos.down().north(), stump);
-		trySetState(world, pos.down().east(), stump);
-		trySetState(world, pos.down().south(), stump);
-		trySetState(world, pos.down().west(), stump);
+	public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+		RandomSource random = context.random();
+		WorldGenLevel world = context.level();
+		BlockPos pos = context.origin().immutable();
+		BlockState stump = CornerBlocks.STRIPPED_GAIA_LOG.defaultBlockState();
+		BlockState leaf = CornerBlocks.GAIA_LEAVES.defaultBlockState().setValue(LeavesBlock.DISTANCE, 1);
+		trySetState(world, pos.above(), stump);
+		trySetState(world, pos.below(), stump);
+		trySetState(world, pos.above().above(), leaf);
+		trySetState(world, pos.above().north(), leaf);
+		trySetState(world, pos.above().east(), leaf);
+		trySetState(world, pos.above().south(), leaf);
+		trySetState(world, pos.above().west(), leaf);
+		trySetState(world, pos.below().north(), stump);
+		trySetState(world, pos.below().east(), stump);
+		trySetState(world, pos.below().south(), stump);
+		trySetState(world, pos.below().west(), stump);
 		int range = random.nextInt(3) + 4;
 
 		for (int i = -range; i <= range; i++) {
@@ -51,30 +51,30 @@ public class GaiaTreeFeature extends Feature<DefaultFeatureConfig> {
 			for (int j = -range; j <= range; j++) {
 
 				for (int k = -range; k <= range; k++) {
-					BlockPos op = pos.add(i, j, k);
+					BlockPos op = pos.offset(i, j, k);
 
-					if (!op.equals(pos.offset(world.getBlockState(pos).get(RadioBlock.FACING)))) {
+					if (!op.equals(pos.relative(world.getBlockState(pos).getValue(RadioBlock.FACING)))) {
 
-						if (world.getBlockState(op).isOf(Blocks.VINE) || world.isAir(op)) {
+						if (world.getBlockState(op).is(Blocks.VINE) || world.isEmptyBlock(op)) {
 
 							for (Direction dir : Direction.values()) {
 
 								if (!dir.equals(Direction.DOWN)) {
 
 									if (world
-										.getBlockState(op.offset(dir))
-										.isSideSolidFullSquare(world, op.offset(dir), dir.getOpposite())) {
+										.getBlockState(op.relative(dir))
+										.isFaceSturdy(world, op.relative(dir), dir.getOpposite())) {
 
-										if (random.nextDouble() > op.getSquaredDistance(pos) / (double) range / 2.0) {
-											BlockState defaultState = Blocks.VINE.getDefaultState();
+										if (random.nextDouble() > op.distSqr(pos) / (double) range / 2.0) {
+											BlockState defaultState = Blocks.VINE.defaultBlockState();
 
-											if (world.getBlockState(op).isOf(Blocks.VINE)) {
+											if (world.getBlockState(op).is(Blocks.VINE)) {
 												defaultState = world.getBlockState(op);
 											}
 
 											world
-												.setBlockState(op, defaultState.with(VineBlock.getFacingProperty(dir), true),
-													Block.NOTIFY_ALL);
+												.setBlock(op, defaultState.setValue(VineBlock.getPropertyForFace(dir), true),
+													Block.UPDATE_ALL);
 										}
 
 									}
@@ -96,17 +96,17 @@ public class GaiaTreeFeature extends Feature<DefaultFeatureConfig> {
 		return true;
 	}
 
-	public void trySetState(StructureWorldAccess world, BlockPos pos, BlockState state) {
+	public void trySetState(WorldGenLevel world, BlockPos pos, BlockState state) {
 		BlockState from = world.getBlockState(pos);
-		boolean wooden = from.isIn(TagKey.of(RegistryKeys.BLOCK, TheCorners.id("gaia_replaceable")));
+		boolean wooden = from.is(TagKey.create(Registries.BLOCK, TheCorners.id("gaia_replaceable")));
 
-		if (wooden || !from.isFullCube(world, pos) || from.isAir()) {
+		if (wooden || !from.isCollisionShapeFullBlock(world, pos) || from.isAir()) {
 
-			if (!from.isFullCube(world, pos) && !(wooden) && !from.isOf(Blocks.VINE) && !from.isAir()) {
-				world.breakBlock(pos, true);
+			if (!from.isCollisionShapeFullBlock(world, pos) && !(wooden) && !from.is(Blocks.VINE) && !from.isAir()) {
+				world.destroyBlock(pos, true);
 			}
 
-			world.setBlockState(pos, state, Block.NOTIFY_ALL);
+			world.setBlock(pos, state, Block.UPDATE_ALL);
 		}
 
 	}

@@ -1,35 +1,35 @@
 package net.ludocrypt.corners.world.biome;
 
 import net.ludocrypt.corners.init.CornerSoundEvents;
-import net.minecraft.registry.HolderProvider;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeEffects;
-import net.minecraft.world.biome.GenerationSettings;
-import net.minecraft.world.biome.SpawnSettings;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.PlacedFeature;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class CommunalCorridorsBiome {
 
-	public static Biome create(HolderProvider<PlacedFeature> features, HolderProvider<ConfiguredCarver<?>> carvers) {
-		Biome.Builder biome = new Biome.Builder();
+	public static Biome create(HolderGetter<PlacedFeature> features, HolderGetter<ConfiguredWorldCarver<?>> carvers) {
+		Biome.BiomeBuilder biome = new Biome.BiomeBuilder();
 
-		SpawnSettings.Builder spawnSettings = new SpawnSettings.Builder();
-		GenerationSettings.Builder generationSettings = new GenerationSettings.Builder(features, carvers);
+		MobSpawnSettings.Builder spawnSettings = new MobSpawnSettings.Builder();
+		BiomeGenerationSettings.Builder generationSettings = new BiomeGenerationSettings.Builder(features, carvers);
 
-		BiomeEffects.Builder biomeEffects = new BiomeEffects.Builder();
+		BiomeSpecialEffects.Builder biomeEffects = new BiomeSpecialEffects.Builder();
 		biomeEffects.skyColor(13548960);
 		biomeEffects.waterColor(13548960);
 		biomeEffects.waterFogColor(13548960);
 		biomeEffects.fogColor(13548960);
-		biomeEffects.grassColor(13818488);
-		biomeEffects.loopSound(CornerSoundEvents.BIOME_LOOP_COMMUNAL_CORRIDORS);
+		biomeEffects.grassColorOverride(13818488);
+		biomeEffects.ambientLoopSound(CornerSoundEvents.BIOME_LOOP_COMMUNAL_CORRIDORS);
 
-		BiomeEffects effects = biomeEffects.build();
+		BiomeSpecialEffects effects = biomeEffects.build();
 
-		biome.spawnSettings(spawnSettings.build());
+		biome.mobSpawnSettings(spawnSettings.build());
 		biome.generationSettings(generationSettings.build());
-		biome.effects(effects);
+		biome.specialEffects(effects);
 		biome.hasPrecipitation(false);
 		biome.temperature(0.8F);
 		biome.downfall(0.0F);

@@ -13,13 +13,13 @@ import net.ludocrypt.corners.mixin.SoundManagerAccessor;
 import net.ludocrypt.corners.util.DimensionalPaintingVariant;
 import net.ludocrypt.corners.util.RadioSoundTable;
 import net.ludocrypt.limlib.impl.access.SoundSystemAccess;
-import net.minecraft.entity.decoration.painting.PaintingEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class ServerToClientPackets {
 
@@ -30,11 +30,11 @@ public class ServerToClientPackets {
 				boolean start = buf.readBoolean();
 				client.execute(() -> {
 					RadioSoundTable id = CornerRadioRegistry.getCurrent(client);
-					List<PaintingEntity> closestPaintings = client.world
-						.getEntitiesByClass(PaintingEntity.class, Box.from(Vec3d.of(pos)).expand(16.0D),
+					List<Painting> closestPaintings = client.level
+						.getEntitiesOfClass(Painting.class, AABB.unitCubeFromLowerCorner(Vec3.atLowerCornerOf(pos)).inflate(16.0D),
 							(entity) -> entity.getVariant().value() instanceof DimensionalPaintingVariant)
 						.stream()
-						.sorted(Comparator.comparing((entity) -> entity.squaredDistanceTo(Vec3d.of(pos))))
+						.sorted(Comparator.comparing((entity) -> entity.distanceToSqr(Vec3.atLowerCornerOf(pos))))
 						.toList();
 
 					if (!closestPaintings.isEmpty()) {
@@ -46,22 +46,22 @@ public class ServerToClientPackets {
 					SoundSystemAccess
 						.get(((SoundManagerAccessor) client.getSoundManager()).getSoundSystem())
 						.stopSoundsAtPosition(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, null,
-							SoundCategory.RECORDS);
-					((MusicTrackerAccess) (client.getMusicTracker())).getRadioPositions().remove(pos);
+							SoundSource.RECORDS);
+					((MusicTrackerAccess) (client.getMusicManager())).getRadioPositions().remove(pos);
 
 					if (start) {
-						((MusicTrackerAccess) (client.getMusicTracker())).getRadioPositions().add(pos);
+						((MusicTrackerAccess) (client.getMusicManager())).getRadioPositions().add(pos);
 						SoundEvent soundEvent = id.getStaticSound().value();
 
-						if (client.world.getBlockState(pos).isOf(CornerBlocks.WOODEN_RADIO)) {
+						if (client.level.getBlockState(pos).is(CornerBlocks.WOODEN_RADIO)) {
 							soundEvent = id.getRadioSound().value();
-						} else if (client.world.getBlockState(pos).isOf(CornerBlocks.TUNED_RADIO)) {
+						} else if (client.level.getBlockState(pos).is(CornerBlocks.TUNED_RADIO)) {
 							soundEvent = id.getMusicSound().value();
 						}
 
 						LoopingPositionedSoundInstance
-							.play(client.world, pos, soundEvent, SoundCategory.RECORDS, 1.0F, 1.0F,
-								RandomGenerator.createLegacy(), pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
+							.play(client.level, pos, soundEvent, SoundSource.RECORDS, 1.0F, 1.0F,
+								RandomSource.create(), pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
 					}
 
 				});

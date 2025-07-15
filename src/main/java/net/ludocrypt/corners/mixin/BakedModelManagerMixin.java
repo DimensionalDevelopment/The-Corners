@@ -10,18 +10,18 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.client.render.DeepBookshelfRenderer;
-import net.minecraft.client.render.model.BakedModelManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.resources.ResourceLocation;
 
-@Mixin(BakedModelManager.class)
+@Mixin(ModelManager.class)
 public class BakedModelManagerMixin {
 
 	@Shadow
 	@Final
 	@Mutable
-	private static Map<Identifier, Identifier> ATLAS_RESOURCES;
+	private static Map<ResourceLocation, ResourceLocation> ATLAS_RESOURCES;
 	static {
-		Map<Identifier, Identifier> newAtli = new HashMap<Identifier, Identifier>();
+		Map<ResourceLocation, ResourceLocation> newAtli = new HashMap<ResourceLocation, ResourceLocation>();
 		newAtli.putAll(ATLAS_RESOURCES);
 		newAtli.put(DeepBookshelfRenderer.DEEP_BOOKSHELF_ATLAS_TEXTURE, TheCorners.id("deep"));
 		ATLAS_RESOURCES = Map.copyOf(newAtli);

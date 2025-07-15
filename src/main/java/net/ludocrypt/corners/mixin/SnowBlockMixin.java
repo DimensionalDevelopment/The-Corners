@@ -6,19 +6,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.ludocrypt.corners.init.CornerBlocks;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
-@Mixin(SnowBlock.class)
+@Mixin(SnowLayerBlock.class)
 public class SnowBlockMixin {
 
 	@Inject(method = "Lnet/minecraft/block/SnowBlock;canReplace(Lnet/minecraft/block/BlockState;Lnet/minecraft/item/ItemPlacementContext;)Z", at = @At("RETURN"), cancellable = true)
-	private void corners$canReplace(BlockState state, ItemPlacementContext ctx, CallbackInfoReturnable<Boolean> ci) {
+	private void corners$canReplace(BlockState state, BlockPlaceContext ctx, CallbackInfoReturnable<Boolean> ci) {
 
-		if (ctx.getStack() != null) {
+		if (ctx.getItemInHand() != null) {
 
-			if (ctx.getStack().getItem().equals(CornerBlocks.DARK_RAILING.asItem())) {
+			if (ctx.getItemInHand().getItem().equals(CornerBlocks.DARK_RAILING.asItem())) {
 				ci.setReturnValue(true);
 			}
 

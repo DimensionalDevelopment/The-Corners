@@ -5,15 +5,15 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import net.ludocrypt.limlib.api.world.maze.MazeComponent;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 
 public class DecoratedMazeComponent extends MazeComponent {
 
-	RandomGenerator random;
+	RandomSource random;
 
-	public DecoratedMazeComponent(int width, int height, RandomGenerator random) {
+	public DecoratedMazeComponent(int width, int height, RandomSource random) {
 		super(width, height);
 		this.random = random;
 	}
@@ -24,14 +24,14 @@ public class DecoratedMazeComponent extends MazeComponent {
 
 	public static class Decoration {
 
-		Identifier id;
+		ResourceLocation id;
 		Map<Direction, Byte[]> connections;
 
-		public Decoration(Identifier id, String connections) {
+		public Decoration(ResourceLocation id, String connections) {
 			this(id, parse(connections));
 		}
 
-		public Decoration(Identifier id, Map<Direction, Byte[]> connections) {
+		public Decoration(ResourceLocation id, Map<Direction, Byte[]> connections) {
 			this.id = id;
 			this.connections = connections;
 		}
@@ -55,7 +55,7 @@ public class DecoratedMazeComponent extends MazeComponent {
 			return map;
 		}
 
-		public Identifier getId() {
+		public ResourceLocation getId() {
 			return id;
 		}
 

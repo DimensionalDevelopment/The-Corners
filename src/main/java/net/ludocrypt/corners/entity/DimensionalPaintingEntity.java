@@ -7,39 +7,39 @@ import net.ludocrypt.corners.mixin.AbstractDecorationEntityAccessor;
 import net.ludocrypt.corners.mixin.PaintingEntityAccessor;
 import net.ludocrypt.corners.util.DimensionalPaintingVariant;
 import net.ludocrypt.limlib.api.LimlibTravelling;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.painting.PaintingEntity;
-import net.minecraft.entity.decoration.painting.PaintingVariant;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.decoration.PaintingVariant;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.PortalInfo;
+import net.minecraft.world.phys.AABB;
 
-public class DimensionalPaintingEntity extends PaintingEntity {
+public class DimensionalPaintingEntity extends Painting {
 
-	public DimensionalPaintingEntity(EntityType<? extends DimensionalPaintingEntity> type, World world) {
+	public DimensionalPaintingEntity(EntityType<? extends DimensionalPaintingEntity> type, Level world) {
 		super(type, world);
 	}
 
-	public static DimensionalPaintingEntity create(World world, BlockPos pos) {
+	public static DimensionalPaintingEntity create(Level world, BlockPos pos) {
 		DimensionalPaintingEntity entity = new DimensionalPaintingEntity(CornerEntities.DIMENSIONAL_PAINTING_ENTITY, world);
-		entity.attachmentPos = pos;
+		entity.pos = pos;
 		return entity;
 	}
 
-	public static DimensionalPaintingEntity create(World world, BlockPos pos, Direction direction, PaintingVariant variant) {
+	public static DimensionalPaintingEntity create(Level world, BlockPos pos, Direction direction, PaintingVariant variant) {
 
 		if (variant instanceof DimensionalPaintingVariant) {
 			DimensionalPaintingEntity entity = create(world, pos);
 			((PaintingEntityAccessor) entity)
 				.callSetVariant(
-					Registries.PAINTING_VARIANT.getHolder(Registries.PAINTING_VARIANT.getKey(variant).get()).get());
-			entity.setFacing(direction);
+					BuiltInRegistries.PAINTING_VARIANT.getHolder(BuiltInRegistries.PAINTING_VARIANT.getResourceKey(variant).get()).get());
+			entity.setDirection(direction);
 			return entity;
 		}
 
@@ -47,16 +47,16 @@ public class DimensionalPaintingEntity extends PaintingEntity {
 		throw new UnsupportedOperationException();
 	}
 
-	public static PaintingEntity createRegular(World world, BlockPos pos, Direction direction, PaintingVariant variant) {
-		PaintingEntity entity = new PaintingEntity(EntityType.PAINTING, world);
-		entity.setPosition(pos.getX(), pos.getY(), pos.getZ());
+	public static Painting createRegular(Level world, BlockPos pos, Direction direction, PaintingVariant variant) {
+		Painting entity = new Painting(EntityType.PAINTING, world);
+		entity.setPos(pos.getX(), pos.getY(), pos.getZ());
 		((PaintingEntityAccessor) entity)
-			.callSetVariant(Registries.PAINTING_VARIANT.getHolder(Registries.PAINTING_VARIANT.getKey(variant).get()).get());
+			.callSetVariant(BuiltInRegistries.PAINTING_VARIANT.getHolder(BuiltInRegistries.PAINTING_VARIANT.getResourceKey(variant).get()).get());
 		((AbstractDecorationEntityAccessor) entity).callSetFacing(direction);
 		return entity;
 	}
 
-	public static PaintingEntity createFromMotive(World world, BlockPos pos, Direction direction, PaintingVariant variant) {
+	public static Painting createFromMotive(Level world, BlockPos pos, Direction direction, PaintingVariant variant) {
 
 		if (variant instanceof DimensionalPaintingVariant) {
 			return create(world, pos, direction, variant);
@@ -67,20 +67,20 @@ public class DimensionalPaintingEntity extends PaintingEntity {
 	}
 
 	@Override
-	public void onPlayerCollision(PlayerEntity player) {
-		super.onPlayerCollision(player);
+	public void playerTouch(Player player) {
+		super.playerTouch(player);
 
 		if (this.getVariant().value() instanceof DimensionalPaintingVariant variant) {
-			Box box = this.getBoundingBox().expand(0.3D);
+			AABB box = this.getBoundingBox().inflate(0.3D);
 
-			if (box.contains(player.getEyePos()) && box.contains(player.getPos()) && box
-				.contains(player.getPos().add(0.0D, player.getHeight(), 0.0D))) {
+			if (box.contains(player.getEyePosition()) && box.contains(player.position()) && box
+				.contains(player.position().add(0.0D, player.getBbHeight(), 0.0D))) {
 
-				if (player.getVelocity().length() > 0.05) {
+				if (player.getDeltaMovement().length() > 0.05) {
 
-					if (this.getWorld() instanceof ServerWorld && player instanceof ServerPlayerEntity spe) {
-						ServerWorld world = player.getServer().getWorld(variant.dimension.apply(spe, this));
-						TeleportTarget teleportTarget = variant.teleportTarget.apply(spe, this);
+					if (this.level() instanceof ServerLevel && player instanceof ServerPlayer spe) {
+						ServerLevel world = player.getServer().getLevel(variant.dimension.apply(spe, this));
+						PortalInfo teleportTarget = variant.teleportTarget.apply(spe, this);
 						LimlibTravelling
 							.travelTo(spe, world, teleportTarget, CornerSoundEvents.PAINTING_PORTAL_TRAVEL.value(), 0.25F,
 								world.getRandom().nextFloat() * 0.4F + 0.8F);

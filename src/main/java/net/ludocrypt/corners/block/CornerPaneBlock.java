@@ -1,10 +1,10 @@
 package net.ludocrypt.corners.block;
 
-import net.minecraft.block.PaneBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
 
-public class CornerPaneBlock extends PaneBlock {
+public class CornerPaneBlock extends IronBarsBlock {
 
-	public CornerPaneBlock(Settings settings) {
+	public CornerPaneBlock(Properties settings) {
 		super(settings);
 	}
 

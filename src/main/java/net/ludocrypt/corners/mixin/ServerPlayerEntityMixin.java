@@ -9,22 +9,22 @@ import com.mojang.authlib.GameProfile;
 
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.advancements.AdvancementHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerEntityMixin extends Player {
 
-	public ServerPlayerEntityMixin(World world, BlockPos pos, float f, GameProfile gameProfile) {
+	public ServerPlayerEntityMixin(Level world, BlockPos pos, float f, GameProfile gameProfile) {
 		super(world, pos, f, gameProfile);
 	}
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void corners$tick(CallbackInfo ci) {
 
-		if (this.getWorld().getRegistryKey().getValue().getNamespace().equals("corners")) {
+		if (this.level().dimension().location().getNamespace().equals("corners")) {
 			AdvancementHelper.grantAdvancement(this, TheCorners.id("root"));
 		}
 

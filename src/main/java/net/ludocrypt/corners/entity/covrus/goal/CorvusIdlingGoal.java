@@ -3,7 +3,7 @@ package net.ludocrypt.corners.entity.covrus.goal;
 import java.util.EnumSet;
 
 import net.ludocrypt.corners.entity.covrus.CorvusEntity;
-import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.Goal;
 
 public class CorvusIdlingGoal extends Goal {
 
@@ -14,16 +14,16 @@ public class CorvusIdlingGoal extends Goal {
 
 	public CorvusIdlingGoal(CorvusEntity mob) {
 		this.mob = mob;
-		this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
+		this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
 	}
 
 	@Override
-	public boolean canStart() {
+	public boolean canUse() {
 		return this.mob.getRandom().nextFloat() < 0.02F;
 	}
 
 	@Override
-	public boolean shouldContinue() {
+	public boolean canContinueToUse() {
 		return this.lookTime >= 0;
 	}
 
@@ -43,7 +43,7 @@ public class CorvusIdlingGoal extends Goal {
 	@Override
 	public void tick() {
 		--this.lookTime;
-		this.mob.getLookControl().lookAt(this.mob.getX() + this.deltaX, this.mob.getEyeY(), this.mob.getZ() + this.deltaZ);
+		this.mob.getLookControl().setLookAt(this.mob.getX() + this.deltaX, this.mob.getEyeY(), this.mob.getZ() + this.deltaZ);
 	}
 
 }

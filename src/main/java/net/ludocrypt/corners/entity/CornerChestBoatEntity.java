@@ -1,16 +1,16 @@
 package net.ludocrypt.corners.entity;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.entity.vehicle.ChestBoatEntity;
-import net.minecraft.item.Item;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.ChestBoat;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 
-public final class CornerChestBoatEntity extends ChestBoatEntity implements CornerBoatWithData {
+public final class CornerChestBoatEntity extends ChestBoat implements CornerBoatWithData {
 
 	private final CornerBoatEntity.CornerBoat boatData;
 
-	public CornerChestBoatEntity(EntityType<? extends BoatEntity> entityType, World world,
+	public CornerChestBoatEntity(EntityType<? extends Boat> entityType, Level world,
 			CornerBoatEntity.CornerBoat boatData) {
 		super(entityType, world);
 		this.boatData = boatData;
@@ -22,16 +22,16 @@ public final class CornerChestBoatEntity extends ChestBoatEntity implements Corn
 	}
 
 	@Override
-	public BoatEntity.Variant getVariant() {
-		return BoatEntity.Variant.OAK;
+	public Boat.Type getVariant() {
+		return Boat.Type.OAK;
 	}
 
 	@Override
-	public void setVariant(BoatEntity.Variant type) {
+	public void setVariant(Boat.Type type) {
 	}
 
 	@Override
-	public Item asItem() {
+	public Item getDropItem() {
 		return boatData.chestBoat().asItem();
 	}
 

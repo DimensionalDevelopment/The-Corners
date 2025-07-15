@@ -1,14 +1,14 @@
 package net.ludocrypt.corners.mixin;
 
-import net.minecraft.util.SignType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(SignType.class)
+@Mixin(WoodType.class)
 public interface SignTypeAccessor {
 
 	@Invoker
-	static SignType callRegister(SignType type) {
+	static WoodType callRegister(WoodType type) {
 		throw new UnsupportedOperationException();
 	}
 

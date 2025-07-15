@@ -23,37 +23,37 @@ import net.ludocrypt.corners.entity.CornerBoatDispensorBehavior;
 import net.ludocrypt.corners.entity.CornerBoatEntity.CornerBoat;
 import net.ludocrypt.corners.mixin.SignTypeAccessor;
 import net.ludocrypt.corners.world.feature.GaiaSaplingGenerator;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockSetType;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CeilingHangingSignBlock;
-import net.minecraft.block.ChiseledBookshelfBlock;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.DoorBlock;
-import net.minecraft.block.FenceBlock;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.MapColor;
-import net.minecraft.block.PillarBlock;
-import net.minecraft.block.PressurePlateBlock;
-import net.minecraft.block.SaplingBlock;
-import net.minecraft.block.SignBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.block.TrapdoorBlock;
-import net.minecraft.block.WallHangingSignBlock;
-import net.minecraft.block.WallSignBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.HangingSignItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.Items;
-import net.minecraft.item.SignItem;
-import net.minecraft.item.TallBlockItem;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.SignType;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.DoubleHighBlockItem;
+import net.minecraft.world.item.HangingSignItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SignItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CeilingHangingSignBlock;
+import net.minecraft.world.level.block.ChiseledBookShelfBlock;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.StandingSignBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.WallHangingSignBlock;
+import net.minecraft.world.level.block.WallSignBlock;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraft.world.level.material.MapColor;
 
 public class CornerBlocks {
 
@@ -71,7 +71,7 @@ public class CornerBlocks {
 	public static final Block NYLON_FIBER_BLOCK = get("nylon_fiber_block",
 		new Block(QuiltBlockSettings.copyOf(Blocks.WHITE_WOOL)));
 	public static final Block NYLON_FIBER_STAIRS = get("nylon_fiber_stairs",
-		new CornerStairsBlock(NYLON_FIBER_BLOCK.getDefaultState(), QuiltBlockSettings.copyOf(Blocks.WHITE_WOOL)));
+		new CornerStairsBlock(NYLON_FIBER_BLOCK.defaultBlockState(), QuiltBlockSettings.copyOf(Blocks.WHITE_WOOL)));
 	public static final Block NYLON_FIBER_SLAB = get("nylon_fiber_slab",
 		new SlabBlock(QuiltBlockSettings.copyOf(Blocks.WHITE_WOOL)));
 	public static final Block SNOWY_GLASS = get("snowy_glass",
@@ -82,32 +82,32 @@ public class CornerBlocks {
 		new SkyboxGlassSlabBlock(QuiltBlockSettings.copyOf(Blocks.GLASS).luminance(3)));
 	public static final Block DARK_RAILING = get("dark_railing", new RailingBlock(QuiltBlockSettings.copyOf(Blocks.STONE)));
 	public static final Block DEEP_BOOKSHELF = get("deep_bookshelf",
-		new ChiseledBookshelfBlock(QuiltBlockSettings.copyOf(Blocks.OAK_WOOD)));
+		new ChiseledBookShelfBlock(QuiltBlockSettings.copyOf(Blocks.OAK_WOOD)));
 	// Gaia
 	public static final BlockSetType GAIA_SET_TYPE = BlockSetTypeBuilder
 		.copyOf(BlockSetType.SPRUCE)
 		.build(TheCorners.id("gaia"));
-	public static final SignType GAIA_SIGN_TYPE = SignTypeAccessor
-		.callRegister(new SignType("corners:gaia", BlockSetType.SPRUCE));
+	public static final WoodType GAIA_SIGN_TYPE = SignTypeAccessor
+		.callRegister(new WoodType("corners:gaia", BlockSetType.SPRUCE));
 	public static final Block GAIA_PLANKS = get("gaia_planks", new Block(QuiltBlockSettings.copyOf(Blocks.SPRUCE_PLANKS)));
 	public static final Block CARVED_GAIA = get("carved_gaia",
 		new OrientableBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_PLANKS)));
 	public static final Block GAIA_SAPLING = get("gaia_sapling", new SaplingBlock(new GaiaSaplingGenerator(),
 		QuiltBlockSettings.copyOf(Blocks.SPRUCE_SAPLING).mapColor(MapColor.GOLD)));
 	public static final Block GAIA_LOG = get("gaia_log",
-		new PillarBlock(QuiltBlockSettings
+		new RotatedPillarBlock(QuiltBlockSettings
 			.copyOf(Blocks.SPRUCE_LOG)
-			.mapColor(state -> state.get(PillarBlock.AXIS) == Direction.Axis.Y ? MapColor.PODZOL : MapColor.GOLD)));
+			.mapColor(state -> state.getValue(RotatedPillarBlock.AXIS) == Direction.Axis.Y ? MapColor.PODZOL : MapColor.GOLD)));
 	public static final Block STRIPPED_GAIA_LOG = get("stripped_gaia_log",
-		new PillarBlock(QuiltBlockSettings.copyOf(Blocks.STRIPPED_SPRUCE_LOG).mapColor(MapColor.PODZOL)));
+		new RotatedPillarBlock(QuiltBlockSettings.copyOf(Blocks.STRIPPED_SPRUCE_LOG).mapColor(MapColor.PODZOL)));
 	public static final Block GAIA_WOOD = get("gaia_wood",
-		new PillarBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_WOOD).mapColor(MapColor.GOLD)));
+		new RotatedPillarBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_WOOD).mapColor(MapColor.GOLD)));
 	public static final Block STRIPPED_GAIA_WOOD = get("stripped_gaia_wood",
-		new PillarBlock(QuiltBlockSettings.copyOf(Blocks.STRIPPED_SPRUCE_WOOD)));
+		new RotatedPillarBlock(QuiltBlockSettings.copyOf(Blocks.STRIPPED_SPRUCE_WOOD)));
 	public static final Block GAIA_LEAVES = get("gaia_leaves",
 		new LeavesBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_LEAVES)));
 	public static final Block GAIA_SIGN = getSingle("gaia_sign",
-		new SignBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_SIGN), GAIA_SIGN_TYPE));
+		new StandingSignBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_SIGN), GAIA_SIGN_TYPE));
 	public static final Block GAIA_WALL_SIGN = getSingle("gaia_wall_sign",
 		new WallSignBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_WALL_SIGN).dropsLike(GAIA_SIGN), GAIA_SIGN_TYPE));
 	public static final Block GAIA_HANGING_SIGN = getSingle("gaia_hanging_sign",
@@ -115,15 +115,15 @@ public class CornerBlocks {
 	public static final Block GAIA_WALL_HANGING_SIGN = getSingle("gaia_wall_hanging_sign", new WallHangingSignBlock(
 		QuiltBlockSettings.copyOf(Blocks.SPRUCE_WALL_HANGING_SIGN).dropsLike(GAIA_HANGING_SIGN), GAIA_SIGN_TYPE));
 	public static final Block GAIA_PRESSURE_PLATE = get("gaia_pressure_plate",
-		new PressurePlateBlock(PressurePlateBlock.ActivationRule.EVERYTHING,
+		new PressurePlateBlock(PressurePlateBlock.Sensitivity.EVERYTHING,
 			QuiltBlockSettings.copyOf(Blocks.SPRUCE_PRESSURE_PLATE), GAIA_SET_TYPE));
 	public static final Block GAIA_TRAPDOOR = get("gaia_trapdoor",
-		new TrapdoorBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_TRAPDOOR), GAIA_SET_TYPE));
+		new TrapDoorBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_TRAPDOOR), GAIA_SET_TYPE));
 	public static final Block POTTED_GAIA_SAPLING = getSingle("potted_gaia_sapling",
-		Blocks.createFlowerPotBlock(GAIA_SAPLING));
-	public static final Block GAIA_BUTTON = get("gaia_button", Blocks.createButtonBlock(GAIA_SET_TYPE));
+		Blocks.flowerPot(GAIA_SAPLING));
+	public static final Block GAIA_BUTTON = get("gaia_button", Blocks.woodenButton(GAIA_SET_TYPE));
 	public static final Block GAIA_STAIRS = get("gaia_stairs",
-		new StairsBlock(GAIA_PLANKS.getDefaultState(), QuiltBlockSettings.copyOf(GAIA_PLANKS)));
+		new StairBlock(GAIA_PLANKS.defaultBlockState(), QuiltBlockSettings.copyOf(GAIA_PLANKS)));
 	public static final Block GAIA_SLAB = get("gaia_slab", new SlabBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_SLAB)));
 	public static final Block GAIA_FENCE_GATE = get("gaia_fence_gate",
 		new FenceGateBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_FENCE_GATE), GAIA_SIGN_TYPE));
@@ -131,14 +131,14 @@ public class CornerBlocks {
 	public static final Block GAIA_DOOR = getSingle("gaia_door",
 		new DoorBlock(QuiltBlockSettings.copyOf(Blocks.SPRUCE_DOOR), GAIA_SET_TYPE));
 	public static final Item GAIA_BOAT = get("gaia_boat",
-		new CornerBoatItem(false, CornerBoat.GAIA, new Item.Settings().maxCount(1)));
+		new CornerBoatItem(false, CornerBoat.GAIA, new Item.Properties().stacksTo(1)));
 	public static final Item GAIA_CHEST_BOAT = get("gaia_chest_boat",
-		new CornerBoatItem(true, CornerBoat.GAIA, new Item.Settings().maxCount(1)));
+		new CornerBoatItem(true, CornerBoat.GAIA, new Item.Properties().stacksTo(1)));
 	public static final Item GAIA_SIGN_ITEM = get("gaia_sign",
-		new SignItem(new Item.Settings().maxCount(16), GAIA_SIGN, GAIA_WALL_SIGN));
+		new SignItem(new Item.Properties().stacksTo(16), GAIA_SIGN, GAIA_WALL_SIGN));
 	public static final Item GAIA_HANGING_SIGN_ITEM = get("gaia_hanging_sign",
-		new HangingSignItem(GAIA_HANGING_SIGN, GAIA_WALL_HANGING_SIGN, new Item.Settings().maxCount(16)));
-	public static final Item GAIA_DOOR_ITEM = get("gaia_door", new TallBlockItem(GAIA_DOOR, new Item.Settings()));
+		new HangingSignItem(GAIA_HANGING_SIGN, GAIA_WALL_HANGING_SIGN, new Item.Properties().stacksTo(16)));
+	public static final Item GAIA_DOOR_ITEM = get("gaia_door", new DoubleHighBlockItem(GAIA_DOOR, new Item.Properties()));
 
 	public static void init() {
 		DispenserBlock.registerBehavior(GAIA_BOAT, new CornerBoatDispensorBehavior(CornerBoat.GAIA, false));
@@ -164,17 +164,17 @@ public class CornerBlocks {
 		BlockContentRegistries.FLAMMABLE.put(GAIA_FENCE_GATE, new FlammableBlockEntry(5, 20));
 		BlockContentRegistries.FLAMMABLE.put(GAIA_LEAVES, new FlammableBlockEntry(30, 60));
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(new ModifyEntries() {
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(new ModifyEntries() {
 
 			@Override
 			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.addItem(STONE_PILLAR);
-				entries.addItem(DARK_RAILING);
-				entries.addItem(DRYWALL);
-				entries.addItem(NYLON_FIBER_BLOCK);
-				entries.addItem(NYLON_FIBER_STAIRS);
-				entries.addItem(NYLON_FIBER_SLAB);
-				entries.addItem(CARVED_GAIA);
+				entries.accept(STONE_PILLAR);
+				entries.accept(DARK_RAILING);
+				entries.accept(DRYWALL);
+				entries.accept(NYLON_FIBER_BLOCK);
+				entries.accept(NYLON_FIBER_STAIRS);
+				entries.accept(NYLON_FIBER_SLAB);
+				entries.accept(CARVED_GAIA);
 				entries
 					.addAfter(Items.CHERRY_BUTTON, GAIA_LOG, GAIA_WOOD, STRIPPED_GAIA_LOG, STRIPPED_GAIA_WOOD, GAIA_PLANKS,
 						GAIA_STAIRS, GAIA_SLAB, GAIA_FENCE, GAIA_FENCE_GATE, GAIA_DOOR_ITEM, GAIA_TRAPDOOR,
@@ -182,7 +182,7 @@ public class CornerBlocks {
 			}
 
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COLORED_BLOCKS).register(new ModifyEntries() {
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(new ModifyEntries() {
 
 			@Override
 			public void modifyEntries(FabricItemGroupEntries entries) {
@@ -190,19 +190,19 @@ public class CornerBlocks {
 			}
 
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE_BLOCKS).register(new ModifyEntries() {
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(new ModifyEntries() {
 
 			@Override
 			public void modifyEntries(FabricItemGroupEntries entries) {
 				entries.addAfter(Items.CHISELED_BOOKSHELF, DEEP_BOOKSHELF);
-				entries.addItem(WOODEN_RADIO);
-				entries.addItem(TUNED_RADIO);
-				entries.addItem(BROKEN_RADIO);
-				entries.addItem(GROWN_RADIO);
+				entries.accept(WOODEN_RADIO);
+				entries.accept(TUNED_RADIO);
+				entries.accept(BROKEN_RADIO);
+				entries.accept(GROWN_RADIO);
 			}
 
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL_BLOCKS).register(new ModifyEntries() {
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(new ModifyEntries() {
 
 			@Override
 			public void modifyEntries(FabricItemGroupEntries entries) {
@@ -212,7 +212,7 @@ public class CornerBlocks {
 			}
 
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL_BLOCKS).register(new ModifyEntries() {
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(new ModifyEntries() {
 
 			@Override
 			public void modifyEntries(FabricItemGroupEntries entries) {
@@ -221,7 +221,7 @@ public class CornerBlocks {
 			}
 
 		});
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS_AND_UTILITIES).register(new ModifyEntries() {
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(new ModifyEntries() {
 
 			@Override
 			public void modifyEntries(FabricItemGroupEntries entries) {
@@ -232,16 +232,16 @@ public class CornerBlocks {
 	}
 
 	private static <B extends Block> B getSingle(String id, B block) {
-		return Registry.register(Registries.BLOCK, TheCorners.id(id), block);
+		return Registry.register(BuiltInRegistries.BLOCK, TheCorners.id(id), block);
 	}
 
 	private static <B extends Block> B get(String id, B block) {
-		Registry.register(Registries.ITEM, TheCorners.id(id), new BlockItem(block, new QuiltItemSettings()));
-		return Registry.register(Registries.BLOCK, TheCorners.id(id), block);
+		Registry.register(BuiltInRegistries.ITEM, TheCorners.id(id), new BlockItem(block, new QuiltItemSettings()));
+		return Registry.register(BuiltInRegistries.BLOCK, TheCorners.id(id), block);
 	}
 
 	private static <I extends Item> I get(String id, I item) {
-		return Registry.register(Registries.ITEM, TheCorners.id(id), item);
+		return Registry.register(BuiltInRegistries.ITEM, TheCorners.id(id), item);
 	}
 
 }

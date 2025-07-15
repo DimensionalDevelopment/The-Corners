@@ -12,39 +12,39 @@ import com.google.common.collect.Maps;
 
 import net.ludocrypt.corners.packet.ClientToServerPackets;
 import net.ludocrypt.corners.world.feature.GaiaSaplingGenerator;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateManager.Builder;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
 
-public class RadioBlock extends HorizontalFacingBlock {
+public class RadioBlock extends HorizontalDirectionalBlock {
 
-	public static final BooleanProperty POWERED = Properties.POWERED;
+	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final Map<Item, RadioBlock> CORES = Maps.newHashMap();
 	public final @Nullable Item core;
 	public final @Nullable RadioBlock empty;
 
-	public RadioBlock(@Nullable Item core, @Nullable RadioBlock empty, Settings settings) {
+	public RadioBlock(@Nullable Item core, @Nullable RadioBlock empty, Properties settings) {
 		super(settings);
-		this.setDefaultState(this.getDefaultState().with(POWERED, false));
+		this.registerDefaultState(this.defaultBlockState().setValue(POWERED, false));
 		this.core = core;
 		this.empty = empty;
 
@@ -55,85 +55,85 @@ public class RadioBlock extends HorizontalFacingBlock {
 	}
 
 	@Override
-	protected void appendProperties(Builder<Block, BlockState> builder) {
-		super.appendProperties(builder);
+	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+		super.createBlockStateDefinition(builder);
 		builder.add(POWERED, FACING);
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
 			BlockHitResult hit) {
 
-		if (world.isReceivingRedstonePower(pos)) {
-			sendOut(world, pos, !state.get(POWERED));
-			world.setBlockState(pos, state.cycle(POWERED));
-			return ActionResult.SUCCESS;
-		} else if (player.getStackInHand(hand).isOf(Items.BONE_MEAL)) {
+		if (world.hasNeighborSignal(pos)) {
+			sendOut(world, pos, !state.getValue(POWERED));
+			world.setBlockAndUpdate(pos, state.cycle(POWERED));
+			return InteractionResult.SUCCESS;
+		} else if (player.getItemInHand(hand).is(Items.BONE_MEAL)) {
 
 			if (this.core == null) {
 
-				if (!world.isClient()) {
+				if (!world.isClientSide()) {
 
-					if (!player.getAbilities().creativeMode) {
-						player.getStackInHand(hand).decrement(1);
+					if (!player.getAbilities().instabuild) {
+						player.getItemInHand(hand).shrink(1);
 					}
 
 					if (this.empty != null) {
-						world.setBlockState(pos, of(state, empty));
+						world.setBlockAndUpdate(pos, of(state, empty));
 					} else {
 
-						if (world instanceof ServerWorld s) {
+						if (world instanceof ServerLevel s) {
 							new GaiaSaplingGenerator()
-								.generateRadio(s, s.getChunkManager().getChunkGenerator(), pos, state, s.getRandom());
+								.generateRadio(s, s.getChunkSource().getGenerator(), pos, state, s.getRandom());
 						}
 
 					}
 
-					world.syncWorldEvent(WorldEvents.BONE_MEAL_USED, pos, 0);
+					world.levelEvent(LevelEvent.PARTICLES_AND_SOUND_PLANT_GROWTH, pos, 0);
 				}
 
-				return ActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			}
 
-		} else if (hit.getSide().equals(state.get(FACING))) {
+		} else if (hit.getDirection().equals(state.getValue(FACING))) {
 
 			if (core != null && empty != null) {
 
-				if (!world.isClient()) {
-					player.getInventory().offerOrDrop(core.getDefaultStack());
-					world.setBlockState(pos, of(state, empty));
+				if (!world.isClientSide()) {
+					player.getInventory().placeItemBackInInventory(core.getDefaultInstance());
+					world.setBlockAndUpdate(pos, of(state, empty));
 				}
 
-				world.playSound(pos, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
-				return ActionResult.SUCCESS;
-			} else if (CORES.containsKey(player.getStackInHand(hand).getItem())) {
+				world.playLocalSound(pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+				return InteractionResult.SUCCESS;
+			} else if (CORES.containsKey(player.getItemInHand(hand).getItem())) {
 
-				if (!world.isClient()) {
-					world.setBlockState(pos, of(state, CORES.get(player.getStackInHand(hand).getItem())));
+				if (!world.isClientSide()) {
+					world.setBlockAndUpdate(pos, of(state, CORES.get(player.getItemInHand(hand).getItem())));
 
-					if (!player.getAbilities().creativeMode) {
-						player.getStackInHand(hand).decrement(1);
+					if (!player.getAbilities().instabuild) {
+						player.getItemInHand(hand).shrink(1);
 					}
 
 				}
 
-				world.playSound(pos, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, 1.0F, 0.5F, false);
-				return ActionResult.SUCCESS;
+				world.playLocalSound(pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 0.5F, false);
+				return InteractionResult.SUCCESS;
 			}
 
 		}
 
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static BlockState of(BlockState from, Block to) {
-		BlockState newState = to.getDefaultState();
+		BlockState newState = to.defaultBlockState();
 
 		for (Property p : from.getProperties()) {
 
 			if (newState.getProperties().contains(p)) {
-				newState = newState.with(p, from.get(p));
+				newState = newState.setValue(p, from.getValue(p));
 			}
 
 		}
@@ -143,56 +143,56 @@ public class RadioBlock extends HorizontalFacingBlock {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
 
-		if (world.isReceivingRedstonePower(pos)) {
+		if (world.hasNeighborSignal(pos)) {
 
-			if (!state.get(POWERED)) {
+			if (!state.getValue(POWERED)) {
 				sendOut(world, pos, true);
 			}
 
-			world.setBlockState(pos, state.with(POWERED, true));
+			world.setBlockAndUpdate(pos, state.setValue(POWERED, true));
 		} else {
 
-			if (state.get(POWERED)) {
+			if (state.getValue(POWERED)) {
 				sendOut(world, pos, false);
 			}
 
-			world.setBlockState(pos, state.with(POWERED, false));
+			world.setBlockAndUpdate(pos, state.setValue(POWERED, false));
 		}
 
-		super.neighborUpdate(state, world, pos, block, fromPos, notify);
+		super.neighborChanged(state, world, pos, block, fromPos, notify);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		boolean power = ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos());
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		boolean power = ctx.getLevel().hasNeighborSignal(ctx.getClickedPos());
 
 		if (power) {
-			sendOut(ctx.getWorld(), ctx.getBlockPos(), true);
+			sendOut(ctx.getLevel(), ctx.getClickedPos(), true);
 		}
 
-		return super.getPlacementState(ctx).with(POWERED, power).with(FACING, ctx.getPlayerFacing().getOpposite());
+		return super.getStateForPlacement(ctx).setValue(POWERED, power).setValue(FACING, ctx.getHorizontalDirection().getOpposite());
 	}
 
 	@Override
-	public boolean hasComparatorOutput(BlockState state) {
-		return state.get(POWERED);
+	public boolean hasAnalogOutputSignal(BlockState state) {
+		return state.getValue(POWERED);
 	}
 
 	@Override
-	public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-		return hasComparatorOutput(state) ? 1 : 0;
+	public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+		return hasAnalogOutputSignal(state) ? 1 : 0;
 	}
 
-	public static void sendOut(World world, BlockPos pos, boolean powered) {
+	public static void sendOut(Level world, BlockPos pos, boolean powered) {
 
-		if (!world.isClient) {
-			PacketByteBuf buf = PacketByteBufs.create();
+		if (!world.isClientSide) {
+			FriendlyByteBuf buf = PacketByteBufs.create();
 			buf.writeBlockPos(pos);
 			buf.writeBoolean(powered);
 
-			for (ServerPlayerEntity serverPlayer : PlayerLookup.tracking((ServerWorld) world, pos)) {
+			for (ServerPlayer serverPlayer : PlayerLookup.tracking((ServerLevel) world, pos)) {
 				ServerPlayNetworking.send(serverPlayer, ClientToServerPackets.PLAY_RADIO, buf);
 			}
 

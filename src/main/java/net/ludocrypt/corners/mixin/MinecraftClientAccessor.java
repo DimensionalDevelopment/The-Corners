@@ -1,11 +1,10 @@
 package net.ludocrypt.corners.mixin;
 
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.client.MinecraftClient;
-
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public interface MinecraftClientAccessor {
 
 	@Accessor("pausedTickDelta")

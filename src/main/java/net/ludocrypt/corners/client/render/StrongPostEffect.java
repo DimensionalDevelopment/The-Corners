@@ -5,21 +5,21 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.ludocrypt.corners.config.CornerConfig;
 import net.ludocrypt.limlib.api.effects.post.PostEffect;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class StrongPostEffect extends PostEffect {
 
 	public static final Codec<StrongPostEffect> CODEC = RecordCodecBuilder.create((instance) -> {
-		return instance.group(Identifier.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
+		return instance.group(ResourceLocation.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
 			return postEffect.shaderName;
-		}), Identifier.CODEC.fieldOf("fallback_shader_name").stable().forGetter((postEffect) -> {
+		}), ResourceLocation.CODEC.fieldOf("fallback_shader_name").stable().forGetter((postEffect) -> {
 			return postEffect.fallbackShaderName;
 		})).apply(instance, instance.stable(StrongPostEffect::new));
 	});
-	private final Identifier shaderName;
-	private final Identifier fallbackShaderName;
+	private final ResourceLocation shaderName;
+	private final ResourceLocation fallbackShaderName;
 
-	public StrongPostEffect(Identifier shaderName, Identifier fallbackShaderName) {
+	public StrongPostEffect(ResourceLocation shaderName, ResourceLocation fallbackShaderName) {
 		this.shaderName = shaderName;
 		this.fallbackShaderName = fallbackShaderName;
 	}
@@ -39,16 +39,16 @@ public class StrongPostEffect extends PostEffect {
 	}
 
 	@Override
-	public Identifier getShaderLocation() {
+	public ResourceLocation getShaderLocation() {
 		return CornerConfig.get().disableStrongShaders ? this.getFallbackShaderLocation() : this.getStrongShaderLocation();
 	}
 
-	public Identifier getStrongShaderLocation() {
-		return new Identifier(shaderName.getNamespace(), "shaders/post/" + shaderName.getPath() + ".json");
+	public ResourceLocation getStrongShaderLocation() {
+		return new ResourceLocation(shaderName.getNamespace(), "shaders/post/" + shaderName.getPath() + ".json");
 	}
 
-	public Identifier getFallbackShaderLocation() {
-		return new Identifier(fallbackShaderName.getNamespace(), "shaders/post/" + fallbackShaderName.getPath() + ".json");
+	public ResourceLocation getFallbackShaderLocation() {
+		return new ResourceLocation(fallbackShaderName.getNamespace(), "shaders/post/" + fallbackShaderName.getPath() + ".json");
 	}
 
 }

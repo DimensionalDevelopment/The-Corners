@@ -6,41 +6,39 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import com.mojang.blaze3d.glfw.Window;
-
+import com.mojang.blaze3d.platform.Window;
 import net.ludocrypt.corners.config.CornerConfig;
 import net.ludocrypt.corners.init.CornerSoundEvents;
 import net.ludocrypt.corners.init.CornerWorlds;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.sound.MusicSound;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.sounds.Music;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public class MinecraftClientMixin {
 
 	@Shadow
-	public ClientPlayerEntity player;
+	public LocalPlayer player;
 	@Shadow
-	public ClientWorld world;
+	public ClientLevel world;
 	@Final
 	@Shadow
 	private Window window;
 
 	@Inject(method = "getMusic", at = @At("HEAD"), cancellable = true)
-	private void corners$getMusic(CallbackInfoReturnable<MusicSound> ci) {
+	private void corners$getMusic(CallbackInfoReturnable<Music> ci) {
 
 		if (this.player != null) {
 
-			if (world.getRegistryKey().equals(CornerWorlds.COMMUNAL_CORRIDORS_KEY)) {
+			if (world.dimension().equals(CornerWorlds.COMMUNAL_CORRIDORS_KEY)) {
 
 				if (CornerConfig.get().christmas.isChristmas()) {
 					ci
 						.setReturnValue(
-							new MusicSound(CornerSoundEvents.MUSIC_COMMUNAL_CORRIDORS_CHRISTMAS, 3000, 8000, true));
+							new Music(CornerSoundEvents.MUSIC_COMMUNAL_CORRIDORS_CHRISTMAS, 3000, 8000, true));
 				} else {
-					ci.setReturnValue(new MusicSound(CornerSoundEvents.MUSIC_COMMUNAL_CORRIDORS, 3000, 8000, true));
+					ci.setReturnValue(new Music(CornerSoundEvents.MUSIC_COMMUNAL_CORRIDORS, 3000, 8000, true));
 				}
 
 			}

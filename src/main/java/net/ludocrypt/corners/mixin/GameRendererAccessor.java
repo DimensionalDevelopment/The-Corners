@@ -1,11 +1,10 @@
 package net.ludocrypt.corners.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
-
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(GameRenderer.class)
 public interface GameRendererAccessor {
@@ -14,9 +13,9 @@ public interface GameRendererAccessor {
 	double callGetFov(Camera camera, float tickDelta, boolean changingFov);
 
 	@Invoker
-	void callBobViewWhenHurt(MatrixStack matrices, float tickDelta);
+	void callBobViewWhenHurt(PoseStack matrices, float tickDelta);
 
 	@Invoker
-	void callBobView(MatrixStack matrices, float tickDelta);
+	void callBobView(PoseStack matrices, float tickDelta);
 
 }

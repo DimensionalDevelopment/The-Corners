@@ -18,8 +18,8 @@ import net.ludocrypt.corners.init.CornerRadioRegistry;
 import net.ludocrypt.corners.init.CornerSoundEvents;
 import net.ludocrypt.corners.packet.ClientToServerPackets;
 import net.ludocrypt.limlib.api.effects.post.PostEffect;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 
 public class TheCorners implements ModInitializer {
 
@@ -39,8 +39,8 @@ public class TheCorners implements ModInitializer {
 		Registry.register(PostEffect.POST_EFFECT_CODEC, id("strong_shader"), StrongPostEffect.CODEC);
 	}
 
-	public static Identifier id(String id) {
-		return new Identifier("corners", id);
+	public static ResourceLocation id(String id) {
+		return new ResourceLocation("corners", id);
 	}
 
 }

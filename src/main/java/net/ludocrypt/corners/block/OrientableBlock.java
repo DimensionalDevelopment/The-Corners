@@ -1,63 +1,63 @@
 package net.ludocrypt.corners.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.JigsawOrientation;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.core.FrontAndTop;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public class OrientableBlock extends Block {
 
-	public static final EnumProperty<JigsawOrientation> ORIENTATION = Properties.ORIENTATION;
+	public static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
 
-	public OrientableBlock(Settings settings) {
+	public OrientableBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.stateManager.getDefaultState().with(ORIENTATION, JigsawOrientation.NORTH_UP));
+		this.registerDefaultState(this.stateDefinition.any().setValue(ORIENTATION, FrontAndTop.NORTH_UP));
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(ORIENTATION);
 	}
 
 	@Override
-	public BlockState rotate(BlockState state, BlockRotation rotation) {
-		return state.with(ORIENTATION, rotation.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
+	public BlockState rotate(BlockState state, Rotation rotation) {
+		return state.setValue(ORIENTATION, rotation.rotation().rotate(state.getValue(ORIENTATION)));
 	}
 
 	@Override
-	public BlockState mirror(BlockState state, BlockMirror mirror) {
-		return state.with(ORIENTATION, mirror.getDirectionTransformation().mapJigsawOrientation(state.get(ORIENTATION)));
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.setValue(ORIENTATION, mirror.rotation().rotate(state.getValue(ORIENTATION)));
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
 		Direction direction;
 		Direction direction2;
 
-		if (ctx.getSide().getAxis() == Direction.Axis.Y) {
-			direction = ctx.getPlayerFacing().getOpposite();
+		if (ctx.getClickedFace().getAxis() == Direction.Axis.Y) {
+			direction = ctx.getHorizontalDirection().getOpposite();
 			direction2 = Direction.UP;
 		} else {
 			direction = Direction.UP;
-			direction2 = ctx.getPlayerFacing().getOpposite();
+			direction2 = ctx.getHorizontalDirection().getOpposite();
 		}
 
-		JigsawOrientation ore = JigsawOrientation.byDirections(direction, direction2);
-		return this.getDefaultState().with(ORIENTATION, ore);
+		FrontAndTop ore = FrontAndTop.fromFrontAndTop(direction, direction2);
+		return this.defaultBlockState().setValue(ORIENTATION, ore);
 	}
 
 	public static Direction getFacing(BlockState state) {
-		return ((JigsawOrientation) state.get(ORIENTATION)).getFacing();
+		return ((FrontAndTop) state.getValue(ORIENTATION)).front();
 	}
 
 	public static Direction getRotation(BlockState state) {
-		return ((JigsawOrientation) state.get(ORIENTATION)).getRotation();
+		return ((FrontAndTop) state.getValue(ORIENTATION)).top();
 	}
 
 }

@@ -28,46 +28,46 @@ import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.api.effects.sound.reverb.StaticReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.api.skybox.TexturedSkybox;
-import net.minecraft.registry.HolderProvider;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.sound.MusicSound;
-import net.minecraft.util.math.int_provider.ConstantIntProvider;
-import net.minecraft.util.math.int_provider.UniformIntProvider;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.source.FixedBiomeSource;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.dimension.DimensionType.MonsterSettings;
-import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.DefaultFeatureConfig;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.PlacedFeature;
-import net.minecraft.world.gen.feature.TreeFeatureConfig;
-import net.minecraft.world.gen.feature.size.TwoLayersFeatureSize;
-import net.minecraft.world.gen.foliage.MegaPineFoliagePlacer;
-import net.minecraft.world.gen.stateprovider.BlockStateProvider;
-import net.minecraft.world.gen.trunk.GiantTrunkPlacer;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.Music;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.DimensionType.MonsterSettings;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.MegaPineFoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.GiantTrunkPlacer;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class CornerWorlds implements LimlibRegistrar {
 
-	private static final List<Pair<RegistryKey<LimlibWorld>, LimlibWorld>> WORLDS = Lists.newArrayList();
-	private static final List<Pair<RegistryKey<SoundEffects>, SoundEffects>> SOUND_EFFECTS = Lists.newArrayList();
-	private static final List<Pair<RegistryKey<Skybox>, Skybox>> SKYBOXES = Lists.newArrayList();
-	private static final List<Pair<RegistryKey<DimensionEffects>, DimensionEffects>> DIMENSION_EFFECTS = Lists
+	private static final List<Pair<ResourceKey<LimlibWorld>, LimlibWorld>> WORLDS = Lists.newArrayList();
+	private static final List<Pair<ResourceKey<SoundEffects>, SoundEffects>> SOUND_EFFECTS = Lists.newArrayList();
+	private static final List<Pair<ResourceKey<Skybox>, Skybox>> SKYBOXES = Lists.newArrayList();
+	private static final List<Pair<ResourceKey<DimensionEffects>, DimensionEffects>> DIMENSION_EFFECTS = Lists
 		.newArrayList();
-	private static final List<Pair<RegistryKey<PostEffect>, PostEffect>> POST_EFFECTS = Lists.newArrayList();
+	private static final List<Pair<ResourceKey<PostEffect>, PostEffect>> POST_EFFECTS = Lists.newArrayList();
 	public static final String YEARNING_CANAL = "yearning_canal";
 	public static final String COMMUNAL_CORRIDORS = "communal_corridors";
 	public static final String HOARY_CROSSROADS = "hoary_crossroads";
-	public static final RegistryKey<World> YEARNING_CANAL_KEY = RegistryKey
-		.of(RegistryKeys.WORLD, TheCorners.id(YEARNING_CANAL));
-	public static final RegistryKey<World> COMMUNAL_CORRIDORS_KEY = RegistryKey
-		.of(RegistryKeys.WORLD, TheCorners.id(COMMUNAL_CORRIDORS));
-	public static final RegistryKey<World> HOARY_CROSSROADS_KEY = RegistryKey
-		.of(RegistryKeys.WORLD, TheCorners.id(HOARY_CROSSROADS));
+	public static final ResourceKey<Level> YEARNING_CANAL_KEY = ResourceKey
+		.create(Registries.DIMENSION, TheCorners.id(YEARNING_CANAL));
+	public static final ResourceKey<Level> COMMUNAL_CORRIDORS_KEY = ResourceKey
+		.create(Registries.DIMENSION, TheCorners.id(COMMUNAL_CORRIDORS));
+	public static final ResourceKey<Level> HOARY_CROSSROADS_KEY = ResourceKey
+		.create(Registries.DIMENSION, TheCorners.id(HOARY_CROSSROADS));
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -75,13 +75,13 @@ public class CornerWorlds implements LimlibRegistrar {
 
 		// Sound Effects
 		get(YEARNING_CANAL, new SoundEffects(Optional.of(new StaticReverbEffect.Builder().setDecayTime(20.0F).build()),
-			Optional.empty(), Optional.of(new MusicSound(CornerSoundEvents.MUSIC_YEARNING_CANAL, 3000, 8000, true))));
+			Optional.empty(), Optional.of(new Music(CornerSoundEvents.MUSIC_YEARNING_CANAL, 3000, 8000, true))));
 		get(COMMUNAL_CORRIDORS,
 			new SoundEffects(Optional.of(new StaticReverbEffect.Builder().setDecayTime(2.15F).setDensity(0.0725F).build()),
 				Optional.empty(), Optional.empty()));
 		get(HOARY_CROSSROADS,
 			new SoundEffects(Optional.of(new StaticReverbEffect.Builder().setDecayTime(15.0F).setDensity(1.0F).build()),
-				Optional.empty(), Optional.of(new MusicSound(CornerSoundEvents.MUSIC_HOARY_CROSSROADS, 3000, 8000, true))));
+				Optional.empty(), Optional.of(new Music(CornerSoundEvents.MUSIC_HOARY_CROSSROADS, 3000, 8000, true))));
 
 		// Skyboxes
 		get(YEARNING_CANAL, new TexturedSkybox(TheCorners.id("textures/sky/yearning_canal")));
@@ -103,44 +103,44 @@ public class CornerWorlds implements LimlibRegistrar {
 		get(YEARNING_CANAL,
 			new LimlibWorld(
 				() -> new DimensionType(OptionalLong.of(1200), true, false, false, true, 1.0, true, false, 0, 1024, 1024,
-					TagKey.of(RegistryKeys.BLOCK, TheCorners.id(YEARNING_CANAL)), TheCorners.id(YEARNING_CANAL), 1.0F,
-					new MonsterSettings(false, false, ConstantIntProvider.ZERO, 0)),
-				(registry) -> new DimensionOptions(
+					TagKey.create(Registries.BLOCK, TheCorners.id(YEARNING_CANAL)), TheCorners.id(YEARNING_CANAL), 1.0F,
+					new MonsterSettings(false, false, ConstantInt.ZERO, 0)),
+				(registry) -> new LevelStem(
 					registry
-						.get(RegistryKeys.DIMENSION_TYPE)
-						.getHolder(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, TheCorners.id(YEARNING_CANAL)))
+						.get(Registries.DIMENSION_TYPE)
+						.get(ResourceKey.create(Registries.DIMENSION_TYPE, TheCorners.id(YEARNING_CANAL)))
 						.get(),
 					new YearningCanalChunkGenerator(
 						new FixedBiomeSource(
-							registry.get(RegistryKeys.BIOME).getHolder(CornerBiomes.YEARNING_CANAL_BIOME).get()),
+							registry.get(Registries.BIOME).get(CornerBiomes.YEARNING_CANAL_BIOME).get()),
 						YearningCanalChunkGenerator.createGroup()))));
 		get(COMMUNAL_CORRIDORS,
 			new LimlibWorld(
 				() -> new DimensionType(OptionalLong.of(23500), true, false, false, true, 1.0, true, false, 0, 256, 256,
-					TagKey.of(RegistryKeys.BLOCK, TheCorners.id(COMMUNAL_CORRIDORS)), TheCorners.id(COMMUNAL_CORRIDORS),
-					0.075F, new MonsterSettings(false, false, ConstantIntProvider.ZERO, 0)),
-				(registry) -> new DimensionOptions(
+					TagKey.create(Registries.BLOCK, TheCorners.id(COMMUNAL_CORRIDORS)), TheCorners.id(COMMUNAL_CORRIDORS),
+					0.075F, new MonsterSettings(false, false, ConstantInt.ZERO, 0)),
+				(registry) -> new LevelStem(
 					registry
-						.get(RegistryKeys.DIMENSION_TYPE)
-						.getHolder(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, TheCorners.id(COMMUNAL_CORRIDORS)))
+						.get(Registries.DIMENSION_TYPE)
+						.get(ResourceKey.create(Registries.DIMENSION_TYPE, TheCorners.id(COMMUNAL_CORRIDORS)))
 						.get(),
 					new CommunalCorridorsChunkGenerator(
 						new FixedBiomeSource(
-							registry.get(RegistryKeys.BIOME).getHolder(CornerBiomes.COMMUNAL_CORRIDORS_BIOME).get()),
+							registry.get(Registries.BIOME).get(CornerBiomes.COMMUNAL_CORRIDORS_BIOME).get()),
 						CommunalCorridorsChunkGenerator.createGroup(), 16, 16, 8, 0))));
 		get(HOARY_CROSSROADS,
 			new LimlibWorld(
 				() -> new DimensionType(OptionalLong.of(1200), true, false, false, true, 1.0, true, false, 0, 512, 512,
-					TagKey.of(RegistryKeys.BLOCK, TheCorners.id(HOARY_CROSSROADS)), TheCorners.id(HOARY_CROSSROADS), 0.725F,
-					new MonsterSettings(false, false, ConstantIntProvider.ZERO, 0)),
-				(registry) -> new DimensionOptions(
+					TagKey.create(Registries.BLOCK, TheCorners.id(HOARY_CROSSROADS)), TheCorners.id(HOARY_CROSSROADS), 0.725F,
+					new MonsterSettings(false, false, ConstantInt.ZERO, 0)),
+				(registry) -> new LevelStem(
 					registry
-						.get(RegistryKeys.DIMENSION_TYPE)
-						.getHolder(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, TheCorners.id(HOARY_CROSSROADS)))
+						.get(Registries.DIMENSION_TYPE)
+						.get(ResourceKey.create(Registries.DIMENSION_TYPE, TheCorners.id(HOARY_CROSSROADS)))
 						.get(),
 					new HoaryCrossroadsChunkGenerator(
 						new FixedBiomeSource(
-							registry.get(RegistryKeys.BIOME).getHolder(CornerBiomes.HOARY_CROSSROADS_BIOME).get()),
+							registry.get(Registries.BIOME).get(CornerBiomes.HOARY_CROSSROADS_BIOME).get()),
 						HoaryCrossroadsChunkGenerator.createGroup(), 16, 16, 4, 0))));
 
 		// Registries
@@ -157,9 +157,9 @@ public class CornerWorlds implements LimlibRegistrar {
 		LimlibRegistryHooks
 			.hook(PostEffect.POST_EFFECT_KEY, (infoLookup, registryKey, registry) -> POST_EFFECTS
 				.forEach((pair) -> registry.register(pair.getFirst(), pair.getSecond(), Lifecycle.stable())));
-		LimlibRegistryHooks.hook(RegistryKeys.BIOME, (infoLookup, registryKey, registry) -> {
-			HolderProvider<PlacedFeature> features = infoLookup.lookup(RegistryKeys.PLACED_FEATURE).get().getter();
-			HolderProvider<ConfiguredCarver<?>> carvers = infoLookup.lookup(RegistryKeys.CONFIGURED_CARVER).get().getter();
+		LimlibRegistryHooks.hook(Registries.BIOME, (infoLookup, registryKey, registry) -> {
+			HolderGetter<PlacedFeature> features = infoLookup.lookup(Registries.PLACED_FEATURE).get().getter();
+			HolderGetter<ConfiguredWorldCarver<?>> carvers = infoLookup.lookup(Registries.CONFIGURED_CARVER).get().getter();
 			registry
 				.register(CornerBiomes.YEARNING_CANAL_BIOME, YearningCanalBiome.create(features, carvers),
 					Lifecycle.stable());
@@ -170,52 +170,52 @@ public class CornerWorlds implements LimlibRegistrar {
 				.register(CornerBiomes.HOARY_CROSSROADS_BIOME, HoaryCrossroadsBiome.create(features, carvers),
 					Lifecycle.stable());
 		});
-		LimlibRegistryHooks.hook(RegistryKeys.FEATURE, (infoLookup, registryKey, registry) -> {
+		LimlibRegistryHooks.hook(Registries.FEATURE, (infoLookup, registryKey, registry) -> {
 			registry
-				.register(CornerBiomes.GAIA_TREE_FEATURE, new GaiaTreeFeature(DefaultFeatureConfig.CODEC),
+				.register(CornerBiomes.GAIA_TREE_FEATURE, new GaiaTreeFeature(NoneFeatureConfiguration.CODEC),
 					Lifecycle.stable());
 		});
-		LimlibRegistryHooks.hook(RegistryKeys.CONFIGURED_FEATURE, (infoLookup, registryKey, registry) -> {
+		LimlibRegistryHooks.hook(Registries.CONFIGURED_FEATURE, (infoLookup, registryKey, registry) -> {
 			registry
 				.register(CornerBiomes.CONFIGURED_GAIA_TREE_FEATURE,
-					new ConfiguredFeature<DefaultFeatureConfig, GaiaTreeFeature>(
-						new GaiaTreeFeature(DefaultFeatureConfig.CODEC), DefaultFeatureConfig.INSTANCE),
+					new ConfiguredFeature<NoneFeatureConfiguration, GaiaTreeFeature>(
+						new GaiaTreeFeature(NoneFeatureConfiguration.CODEC), NoneFeatureConfiguration.INSTANCE),
 					Lifecycle.stable());
 			registry
 				.register(CornerBiomes.CONFIGURED_SAPLING_GAIA_TREE_FEATURE,
 					new ConfiguredFeature(Feature.TREE,
-						new TreeFeatureConfig.Builder(BlockStateProvider.of(CornerBlocks.GAIA_LOG),
-							new GiantTrunkPlacer(10, 5, 5), BlockStateProvider.of(CornerBlocks.GAIA_LEAVES),
-							new MegaPineFoliagePlacer(ConstantIntProvider.create(0), ConstantIntProvider.create(0),
-								UniformIntProvider.create(8, 10)),
+						new TreeConfiguration.TreeConfigurationBuilder(BlockStateProvider.simple(CornerBlocks.GAIA_LOG),
+							new GiantTrunkPlacer(10, 5, 5), BlockStateProvider.simple(CornerBlocks.GAIA_LEAVES),
+							new MegaPineFoliagePlacer(ConstantInt.of(0), ConstantInt.of(0),
+								UniformInt.of(8, 10)),
 							new TwoLayersFeatureSize(1, 1, 2)).build()),
 					Lifecycle.stable());
 		});
 	}
 
 	private static <W extends LimlibWorld> W get(String id, W world) {
-		WORLDS.add(Pair.of(RegistryKey.of(LimlibWorld.LIMLIB_WORLD_KEY, TheCorners.id(id)), world));
+		WORLDS.add(Pair.of(ResourceKey.create(LimlibWorld.LIMLIB_WORLD_KEY, TheCorners.id(id)), world));
 		return world;
 	}
 
 	private static <S extends SoundEffects> S get(String id, S soundEffects) {
-		SOUND_EFFECTS.add(Pair.of(RegistryKey.of(SoundEffects.SOUND_EFFECTS_KEY, TheCorners.id(id)), soundEffects));
+		SOUND_EFFECTS.add(Pair.of(ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, TheCorners.id(id)), soundEffects));
 		return soundEffects;
 	}
 
 	private static <S extends Skybox> S get(String id, S skybox) {
-		SKYBOXES.add(Pair.of(RegistryKey.of(Skybox.SKYBOX_KEY, TheCorners.id(id)), skybox));
+		SKYBOXES.add(Pair.of(ResourceKey.create(Skybox.SKYBOX_KEY, TheCorners.id(id)), skybox));
 		return skybox;
 	}
 
 	private static <D extends DimensionEffects> D get(String id, D dimensionEffects) {
 		DIMENSION_EFFECTS
-			.add(Pair.of(RegistryKey.of(DimensionEffects.DIMENSION_EFFECTS_KEY, TheCorners.id(id)), dimensionEffects));
+			.add(Pair.of(ResourceKey.create(DimensionEffects.DIMENSION_EFFECTS_KEY, TheCorners.id(id)), dimensionEffects));
 		return dimensionEffects;
 	}
 
 	private static <P extends PostEffect> P get(String id, P postEffect) {
-		POST_EFFECTS.add(Pair.of(RegistryKey.of(PostEffect.POST_EFFECT_KEY, TheCorners.id(id)), postEffect));
+		POST_EFFECTS.add(Pair.of(ResourceKey.create(PostEffect.POST_EFFECT_KEY, TheCorners.id(id)), postEffect));
 		return postEffect;
 	}
 

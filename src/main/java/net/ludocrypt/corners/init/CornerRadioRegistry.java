@@ -4,17 +4,17 @@ import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.util.RadioSoundTable;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 public class CornerRadioRegistry {
 
-	public static final RegistryKey<Registry<RadioSoundTable>> RADIO_REGISTRY_KEY = RegistryKey
-		.ofRegistry(TheCorners.id("radio_registry"));
-	public static final SimpleRegistry<RadioSoundTable> RADIO_REGISTRY = FabricRegistryBuilder
+	public static final ResourceKey<Registry<RadioSoundTable>> RADIO_REGISTRY_KEY = ResourceKey
+		.createRegistryKey(TheCorners.id("radio_registry"));
+	public static final MappedRegistry<RadioSoundTable> RADIO_REGISTRY = FabricRegistryBuilder
 		.createDefaulted(RADIO_REGISTRY_KEY, TheCorners.id("default_radio"))
 		.attribute(RegistryAttribute.SYNCED)
 		.buildAndRegister();
@@ -31,16 +31,16 @@ public class CornerRadioRegistry {
 			CornerSoundEvents.RADIO_HOARY_CROSSROADS_STATIC, CornerSoundEvents.RADIO_HOARY_CROSSROADS));
 	}
 
-	public static RadioSoundTable register(RegistryKey<World> world, RadioSoundTable sound) {
-		return Registry.register(RADIO_REGISTRY, world.getValue(), sound);
+	public static RadioSoundTable register(ResourceKey<Level> world, RadioSoundTable sound) {
+		return Registry.register(RADIO_REGISTRY, world.location(), sound);
 	}
 
-	public static RadioSoundTable getCurrent(MinecraftClient client) {
-		return getCurrent(client.world.getRegistryKey());
+	public static RadioSoundTable getCurrent(Minecraft client) {
+		return getCurrent(client.level.dimension());
 	}
 
-	public static RadioSoundTable getCurrent(RegistryKey<World> key) {
-		return RADIO_REGISTRY.getOrEmpty(key.getValue()).orElse(DEFAULT);
+	public static RadioSoundTable getCurrent(ResourceKey<Level> key) {
+		return RADIO_REGISTRY.getOptional(key.location()).orElse(DEFAULT);
 	}
 
 	public static <T extends RadioSoundTable> T getRadio(String id, T radio) {

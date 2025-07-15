@@ -15,26 +15,26 @@ import net.ludocrypt.limlib.api.world.LimlibHelper;
 import net.ludocrypt.limlib.api.world.Manipulation;
 import net.ludocrypt.limlib.api.world.NbtGroup;
 import net.ludocrypt.limlib.api.world.chunk.AbstractNbtChunkGenerator;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.RandomState;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ThreadedLevelLightEngine;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class YearningCanalChunkGenerator extends AbstractNbtChunkGenerator {
 
 	public static final Codec<YearningCanalChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
 		return instance.group(BiomeSource.CODEC.fieldOf("biome_source").stable().forGetter((chunkGenerator) -> {
-			return chunkGenerator.populationSource;
+			return chunkGenerator.biomeSource;
 		}), NbtGroup.CODEC.fieldOf("group").stable().forGetter((chunkGenerator) -> {
 			return chunkGenerator.nbtGroup;
 		})).apply(instance, instance.stable(YearningCanalChunkGenerator::new));
@@ -58,35 +58,35 @@ public class YearningCanalChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	protected Codec<? extends ChunkGenerator> getCodec() {
+	protected Codec<? extends ChunkGenerator> codec() {
 		return CODEC;
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateNoise(ChunkRegion region, ChunkStatus targetStatus, Executor executor,
-			ServerWorld world, ChunkGenerator generator, StructureTemplateManager structureTemplateManager,
-			ServerLightingProvider lightingProvider,
-			Function<Chunk, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> fullChunkConverter, List<Chunk> chunks,
-			Chunk chunk) {
-		int max = Math.floorDiv(chunk.getTopY(), 54);
+	public CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion region, ChunkStatus targetStatus, Executor executor,
+			ServerLevel world, ChunkGenerator generator, StructureTemplateManager structureTemplateManager,
+			ThreadedLevelLightEngine lightingProvider,
+			Function<ChunkAccess, CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> fullChunkConverter, List<ChunkAccess> chunks,
+			ChunkAccess chunk) {
+		int max = Math.floorDiv(chunk.getMaxBuildHeight(), 54);
 
 		for (int xi = 0; xi < 16; xi++) {
 
 			for (int zi = 0; zi < 16; zi++) {
-				BlockPos pos = chunk.getPos().getStartPos().add(xi, 0, zi);
+				BlockPos pos = chunk.getPos().getWorldPosition().offset(xi, 0, zi);
 
 				for (int yi = 0; yi < max; yi++) {
-					BlockPos towerPos = pos.add(0, yi * 54, 0);
-					RandomGenerator pieceRandom = RandomGenerator
-						.createLegacy(region.getSeed() + LimlibHelper.blockSeed(yi * 2, yi * 3, yi));
+					BlockPos towerPos = pos.offset(0, yi * 54, 0);
+					RandomSource pieceRandom = RandomSource
+						.create(region.getSeed() + LimlibHelper.blockSeed(yi * 2, yi * 3, yi));
 					boolean hallwaySpawnsAtHeight = (pieceRandom.nextDouble() < 0.875D && pieceRandom
 						.nextBoolean()) && (yi != 0 && yi != max - 1);
-					Direction dir = Direction.fromHorizontal(pieceRandom.nextInt(4));
-					BlockRotation rotation = dir.equals(Direction.NORTH) ? BlockRotation.COUNTERCLOCKWISE_90
-							: dir.equals(Direction.EAST) ? BlockRotation.NONE
-									: dir.equals(Direction.SOUTH) ? BlockRotation.CLOCKWISE_90 : BlockRotation.CLOCKWISE_180;
+					Direction dir = Direction.from2DDataValue(pieceRandom.nextInt(4));
+					Rotation rotation = dir.equals(Direction.NORTH) ? Rotation.COUNTERCLOCKWISE_90
+							: dir.equals(Direction.EAST) ? Rotation.NONE
+									: dir.equals(Direction.SOUTH) ? Rotation.CLOCKWISE_90 : Rotation.CLOCKWISE_180;
 					BlockPos offsetPos = towerPos
-						.add(
+						.offset(
 							(dir.equals(Direction.NORTH) ? 6
 									: dir.equals(Direction.EAST) ? 12 : dir.equals(Direction.SOUTH) ? 6 : -10),
 							(dir.equals(Direction.NORTH) ? 13
@@ -95,8 +95,8 @@ public class YearningCanalChunkGenerator extends AbstractNbtChunkGenerator {
 									: dir.equals(Direction.EAST) ? 6 : dir.equals(Direction.SOUTH) ? 12 : 6));
 
 					if (pos.getX() % 19 == 0 && pos.getZ() % 19 == 0) {
-						RandomGenerator chunkRandom = RandomGenerator
-							.createLegacy(region.getSeed() + LimlibHelper.blockSeed(pos.getX(), pos.getZ(), 50));
+						RandomSource chunkRandom = RandomSource
+							.create(region.getSeed() + LimlibHelper.blockSeed(pos.getX(), pos.getZ(), 50));
 						boolean tower = chunkRandom.nextDouble() < 0.01 && chunkRandom.nextDouble() < 0.4;
 
 						if ((tower && (towerPos.getX() != 0 && towerPos.getZ() != 0)) || (towerPos.getX() == 0 && towerPos
@@ -133,15 +133,15 @@ public class YearningCanalChunkGenerator extends AbstractNbtChunkGenerator {
 								.equals(Direction.WEST) && towerPos.getZ() == 0 && towerPos.getX() <= 0) || (dir
 									.equals(Direction.SOUTH) && towerPos.getX() == 0 && towerPos.getZ() >= 1) || (dir
 										.equals(Direction.EAST) && towerPos.getZ() == 0 && towerPos.getX() >= 1)) {
-								RandomGenerator hallRandom = RandomGenerator
-									.createLegacy(region.getSeed() + LimlibHelper
+								RandomSource hallRandom = RandomSource
+									.create(region.getSeed() + LimlibHelper
 										.blockSeed(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ()));
 
 								if (hallRandom.nextInt(27) == 0) {
-									generateNbt(region, offsetPos.add(0, 4, 0),
+									generateNbt(region, offsetPos.offset(0, 4, 0),
 										nbtGroup.pick("yearning_canal_hallway", hallRandom), Manipulation.of(rotation));
 								} else {
-									generateNbt(region, offsetPos.add(0, 4, 0),
+									generateNbt(region, offsetPos.offset(0, 4, 0),
 										nbtGroup.pick("yearning_canal_hallway_decorated", hallRandom),
 										Manipulation.of(rotation));
 								}
@@ -167,7 +167,7 @@ public class YearningCanalChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public int getWorldHeight() {
+	public int getGenDepth() {
 		return 2032;
 	}
 
@@ -177,12 +177,12 @@ public class YearningCanalChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public int getMinimumY() {
+	public int getMinY() {
 		return 0;
 	}
 
 	@Override
-	public void method_40450(List<String> list, RandomState randomState, BlockPos pos) {
+	public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos pos) {
 	}
 
 }

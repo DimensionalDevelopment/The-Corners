@@ -1,10 +1,10 @@
 package net.ludocrypt.corners.init;
 
 import net.ludocrypt.corners.TheCorners;
-import net.minecraft.registry.Holder;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvent;
 
 public class CornerSoundEvents {
 
@@ -37,7 +37,7 @@ public class CornerSoundEvents {
 
 	public static Holder.Reference<SoundEvent> get(String id) {
 		return Registry
-			.registerHolder(Registries.SOUND_EVENT, TheCorners.id(id),
+			.registerForHolder(BuiltInRegistries.SOUND_EVENT, TheCorners.id(id),
 				SoundEvent.createVariableRangeEvent(TheCorners.id(id)));
 	}
 

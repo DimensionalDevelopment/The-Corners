@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import net.ludocrypt.limlib.api.world.maze.MazeComponent;
 import net.ludocrypt.limlib.api.world.maze.MazeGenerator;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 public class GrandMazeGenerator extends MazeGenerator<MazeComponent> {
 

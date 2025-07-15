@@ -34,7 +34,7 @@ repositories {
 
 dependencies {
 	minecraft libs.minecraft
-	mappings "org.quiltmc:quilt-mappings:${libs.versions.quilt.mappings.get()}:intermediary-v2"
+	mappings loom.officialMojangMappings()
 
 	modImplementation libs.quilt.loader
 

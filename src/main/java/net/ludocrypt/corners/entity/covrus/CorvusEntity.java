@@ -1,42 +1,42 @@
 package net.ludocrypt.corners.entity.covrus;
 
 import net.ludocrypt.corners.entity.covrus.goal.CorvusIdlingGoal;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Flutterer;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandler;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.animal.FlyingAnimal;
+import net.minecraft.world.level.Level;
 
-public class CorvusEntity extends MobEntity implements Flutterer {
+public class CorvusEntity extends Mob implements FlyingAnimal {
 
-	public static final TrackedDataHandler<CorvusPose> CORVUS_POSE_DATA_HANDLER = TrackedDataHandler
-		.createEnum(CorvusPose.class);
-	public static final TrackedData<CorvusPose> CORVUS_POSE = DataTracker
-		.registerData(CorvusEntity.class, CORVUS_POSE_DATA_HANDLER);
+	public static final EntityDataSerializer<CorvusPose> CORVUS_POSE_DATA_HANDLER = EntityDataSerializer
+		.simpleEnum(CorvusPose.class);
+	public static final EntityDataAccessor<CorvusPose> CORVUS_POSE = SynchedEntityData
+		.defineId(CorvusEntity.class, CORVUS_POSE_DATA_HANDLER);
 	public AnimationState restingAnimation = new AnimationState();
 
-	public CorvusEntity(EntityType<? extends CorvusEntity> entityType, World world) {
+	public CorvusEntity(EntityType<? extends CorvusEntity> entityType, Level world) {
 		super(entityType, world);
-		this.goalSelector.add(10, new CorvusIdlingGoal(this));
+		this.goalSelector.addGoal(10, new CorvusIdlingGoal(this));
 	}
 
-	public static DefaultAttributeContainer.Builder createAttributes() {
-		return MobEntity.createAttributes();
-	}
-
-	@Override
-	protected void initDataTracker() {
-		super.initDataTracker();
-		this.dataTracker.startTracking(CORVUS_POSE, CorvusPose.SITTING);
+	public static AttributeSupplier.Builder createLivingAttributes() {
+		return Mob.createMobAttributes();
 	}
 
 	@Override
-	public boolean isInAir() {
+	protected void defineSynchedData() {
+		super.defineSynchedData();
+		this.entityData.define(CORVUS_POSE, CorvusPose.SITTING);
+	}
+
+	@Override
+	public boolean isFlying() {
 		return false;
 	}
 
@@ -48,14 +48,14 @@ public class CorvusEntity extends MobEntity implements Flutterer {
 	public void tick() {
 		super.tick();
 
-		if (this.age % 60 == 0) {
-			this.restingAnimation.restart(this.age);
+		if (this.tickCount % 60 == 0) {
+			this.restingAnimation.start(this.tickCount);
 		}
 
 	}
 
 	static {
-		TrackedDataHandlerRegistry.register(CORVUS_POSE_DATA_HANDLER);
+		EntityDataSerializers.registerSerializer(CORVUS_POSE_DATA_HANDLER);
 	}
 
 }

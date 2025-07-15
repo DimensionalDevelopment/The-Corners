@@ -1,27 +1,27 @@
 package net.ludocrypt.corners.block;
 
 import net.ludocrypt.corners.entity.CornerBoatEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.item.BoatItem;
-import net.minecraft.item.Item;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.BoatItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 
 public class CornerBoatItem extends BoatItem {
 
 	private final CornerBoatEntity.CornerBoat boatData;
 	private final boolean chest;
 
-	public CornerBoatItem(boolean chest, CornerBoatEntity.CornerBoat boatData, Item.Settings settings) {
-		super(chest, BoatEntity.Variant.OAK, settings);
+	public CornerBoatItem(boolean chest, CornerBoatEntity.CornerBoat boatData, Item.Properties settings) {
+		super(chest, Boat.Type.OAK, settings);
 		this.chest = chest;
 		this.boatData = boatData;
 	}
 
 	@Override
-	protected BoatEntity createBoatEntity(World world, HitResult hitResult) {
+	protected Boat getBoat(Level world, HitResult hitResult) {
 		var entity = boatData.factory(chest).create(boatData.entityType(chest), world);
-		entity.updatePosition(hitResult.getPos().x, hitResult.getPos().y, hitResult.getPos().z);
+		entity.absMoveTo(hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
 		return entity;
 	}
 

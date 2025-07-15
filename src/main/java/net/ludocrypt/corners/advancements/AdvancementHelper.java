@@ -1,23 +1,23 @@
 package net.ludocrypt.corners.advancements;
 
-import net.minecraft.advancement.Advancement;
-import net.minecraft.advancement.AdvancementProgress;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public class AdvancementHelper {
 
-	public static void grantAdvancement(PlayerEntity player, Identifier id) {
+	public static void grantAdvancement(Player player, ResourceLocation id) {
 
-		if (player instanceof ServerPlayerEntity serverPlayerEntity) {
-			Advancement advancement = serverPlayerEntity.server.getAdvancementLoader().get(id);
-			AdvancementProgress progress = serverPlayerEntity.getAdvancementTracker().getProgress(advancement);
+		if (player instanceof ServerPlayer serverPlayerEntity) {
+			Advancement advancement = serverPlayerEntity.server.getAdvancements().getAdvancement(id);
+			AdvancementProgress progress = serverPlayerEntity.getAdvancements().getOrStartProgress(advancement);
 
 			if (!progress.isDone()) {
 				progress
-					.getUnobtainedCriteria()
-					.forEach((criteria) -> serverPlayerEntity.getAdvancementTracker().grantCriterion(advancement, criteria));
+					.getRemainingCriteria()
+					.forEach((criteria) -> serverPlayerEntity.getAdvancements().award(advancement, criteria));
 			}
 
 		}
