@@ -1,11 +1,10 @@
 package net.ludocrypt.corners.client.render;
 
-import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.mixin.GameRendererAccessor;
 import net.ludocrypt.specialmodels.api.SpecialModelRenderer;
@@ -19,6 +18,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
+import org.joml.Matrix4f;
 
 public class SkyboxRenderer extends SpecialModelRenderer {
 
@@ -29,7 +29,7 @@ public class SkyboxRenderer extends SpecialModelRenderer {
 	}
 
 	@Override
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public void setup(PoseStack matrices, Matrix4f viewMatrix, Matrix4f positionMatrix, float tickDelta,
 			ShaderInstance shader, BlockPos origin) {
 
@@ -48,7 +48,7 @@ public class SkyboxRenderer extends SpecialModelRenderer {
 		}
 
 		PoseStack matrixStack = new PoseStack();
-		((GameRendererAccessor) client.gameRenderer).callBobViewWhenHurt(matrixStack, tickDelta);
+		((GameRendererAccessor) client.gameRenderer).callBobHurt(matrixStack, tickDelta);
 
 		if (client.options.bobView().get()) {
 			((GameRendererAccessor) client.gameRenderer).callBobView(matrixStack, tickDelta);
@@ -61,7 +61,7 @@ public class SkyboxRenderer extends SpecialModelRenderer {
 	}
 
 	@Override
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public MutableQuad modifyQuad(RenderChunkRegion chunkRenderRegion, BlockPos pos, BlockState state, BakedModel model,
 			BakedQuad quadIn, long modelSeed, MutableQuad quad) {
 		quad.getV1().setUv(new Vec2(0.0F, 0.0F));

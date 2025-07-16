@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class BlockEntityTypeMixin<T extends BlockEntity> {
 
 	@SuppressWarnings("unchecked")
-	@Inject(method = "Lnet/minecraft/block/entity/BlockEntityType;supports(Lnet/minecraft/block/BlockState;)Z", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "isValid", at = @At("HEAD"), cancellable = true)
 	private void corners$supports(BlockState state, CallbackInfoReturnable<Boolean> ci) {
 		ResourceLocation id = BlockEntityType.getKey((BlockEntityType<T>) ((Object) this));
 

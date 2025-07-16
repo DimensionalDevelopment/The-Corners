@@ -6,6 +6,7 @@ import net.minecraft.world.item.BoatItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class CornerBoatItem extends BoatItem {
 
@@ -19,7 +20,7 @@ public class CornerBoatItem extends BoatItem {
 	}
 
 	@Override
-	protected Boat getBoat(Level world, HitResult hitResult) {
+	public @NotNull Boat getBoat(Level world, HitResult hitResult) {
 		var entity = boatData.factory(chest).create(boatData.entityType(chest), world);
 		entity.absMoveTo(hitResult.getLocation().x, hitResult.getLocation().y, hitResult.getLocation().z);
 		return entity;

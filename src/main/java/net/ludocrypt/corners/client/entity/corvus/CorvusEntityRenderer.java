@@ -13,7 +13,7 @@ public class CorvusEntityRenderer extends MobRenderer<CorvusEntity, CorvusEntity
 	}
 
 	@Override
-	public ResourceLocation getTexture(CorvusEntity entity) {
+	public ResourceLocation getTextureLocation(CorvusEntity entity) {
 		return TheCorners.id("textures/entity/corvus/plain.png");
 	}
 

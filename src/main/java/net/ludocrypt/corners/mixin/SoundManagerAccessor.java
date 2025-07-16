@@ -9,6 +9,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface SoundManagerAccessor {
 
 	@Accessor
-	SoundEngine getSoundSystem();
+	SoundEngine getSoundEngine();
 
 }

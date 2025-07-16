@@ -1,6 +1,5 @@
 package net.ludocrypt.corners.entity;
 
-import Z;
 import java.util.function.Supplier;
 
 import net.ludocrypt.corners.TheCorners;

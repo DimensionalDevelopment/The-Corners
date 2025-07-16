@@ -169,7 +169,7 @@ public class CorvusEntityModel<T extends CorvusEntity> extends HierarchicalModel
 	}
 
 	@Override
-	public void setAngles(T corvus, float limbAngle, float limbDistance, float animationProgress, float headYaw,
+	public void setupAnim(T corvus, float limbAngle, float limbDistance, float animationProgress, float headYaw,
 			float headPitch) {
 		this.main.getAllParts().forEach(ModelPart::resetPose);
 	}
@@ -184,5 +184,4 @@ public class CorvusEntityModel<T extends CorvusEntity> extends HierarchicalModel
 	public ModelPart root() {
 		return this.main;
 	}
-
 }

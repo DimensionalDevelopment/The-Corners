@@ -1,15 +1,9 @@
 package net.ludocrypt.corners.block;
 
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
-import org.quiltmc.qsl.networking.api.PacketByteBufs;
-import org.quiltmc.qsl.networking.api.PlayerLookup;
-import org.quiltmc.qsl.networking.api.ServerPlayNetworking;
-
 import com.google.common.collect.Maps;
-
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.ludocrypt.corners.packet.ClientToServerPackets;
 import net.ludocrypt.corners.world.feature.GaiaSaplingGenerator;
 import net.minecraft.core.BlockPos;
@@ -34,6 +28,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 public class RadioBlock extends HorizontalDirectionalBlock {
 

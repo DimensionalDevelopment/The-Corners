@@ -1,7 +1,8 @@
 package net.ludocrypt.corners.client.render;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -26,7 +27,7 @@ public class DeepBookshelfRenderer extends SpecialModelRenderer {
 	public static final ResourceLocation DEEP_BOOKSHELF_ATLAS_TEXTURE = TheCorners.id("textures/atlas/deep.png");
 
 	@Override
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public void setup(PoseStack matrices, Matrix4f viewMatrix, Matrix4f positionMatrix, float tickDelta,
 			ShaderInstance shader, BlockPos origin) {
 		RenderSystem.enablePolygonOffset();
@@ -36,7 +37,7 @@ public class DeepBookshelfRenderer extends SpecialModelRenderer {
 		Minecraft client = Minecraft.getInstance();
 		Camera camera = client.gameRenderer.getMainCamera();
 		PoseStack matrixStack = new PoseStack();
-		((GameRendererAccessor) client.gameRenderer).callBobViewWhenHurt(matrixStack, tickDelta);
+		((GameRendererAccessor) client.gameRenderer).callBobHurt(matrixStack, tickDelta);
 
 		if (client.options.bobView().get()) {
 			((GameRendererAccessor) client.gameRenderer).callBobView(matrixStack, tickDelta);
@@ -64,7 +65,7 @@ public class DeepBookshelfRenderer extends SpecialModelRenderer {
 	}
 
 	@Override
-	@ClientOnly
+	@Environment(EnvType.CLIENT)
 	public Vec4b appendState(RenderChunkRegion chunkRenderRegion, BlockPos pos, BlockState state, BakedModel model,
 			long modelSeed) {
 

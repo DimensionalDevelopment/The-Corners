@@ -52,7 +52,7 @@ public class DimensionalPaintingEntity extends Painting {
 		entity.setPos(pos.getX(), pos.getY(), pos.getZ());
 		((PaintingEntityAccessor) entity)
 			.callSetVariant(BuiltInRegistries.PAINTING_VARIANT.getHolder(BuiltInRegistries.PAINTING_VARIANT.getResourceKey(variant).get()).get());
-		((AbstractDecorationEntityAccessor) entity).callSetFacing(direction);
+		((AbstractDecorationEntityAccessor) entity).callSetDirection(direction);
 		return entity;
 	}
 

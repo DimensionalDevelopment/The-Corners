@@ -1,9 +1,8 @@
 package net.ludocrypt.corners;
 
+import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
@@ -26,7 +25,7 @@ public class TheCorners implements ModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger("The Corners");
 
 	@Override
-	public void onInitialize(ModContainer mod) {
+	public void onInitialize() {
 		AutoConfig.register(CornerConfig.class, GsonConfigSerializer::new);
 		CornerBlocks.init();
 		CornerBiomes.init();

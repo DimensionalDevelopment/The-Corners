@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(SnowLayerBlock.class)
 public class SnowBlockMixin {
 
-	@Inject(method = "Lnet/minecraft/block/SnowBlock;canReplace(Lnet/minecraft/block/BlockState;Lnet/minecraft/item/ItemPlacementContext;)Z", at = @At("RETURN"), cancellable = true)
+	@Inject(method = "canBeReplaced", at = @At("RETURN"), cancellable = true)
 	private void corners$canReplace(BlockState state, BlockPlaceContext ctx, CallbackInfoReturnable<Boolean> ci) {
 
 		if (ctx.getItemInHand() != null) {

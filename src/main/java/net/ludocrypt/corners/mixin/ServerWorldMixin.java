@@ -17,19 +17,19 @@ public class ServerWorldMixin {
 
 	@Shadow
 	@Final
-	private ServerLevelData worldProperties;
+	private ServerLevelData serverLevelData;
 
-	@Inject(method = "Lnet/minecraft/server/world/ServerWorld;tickWeather()V", at = @At("HEAD"))
+	@Inject(method = "advanceWeatherCycle", at = @At("HEAD"))
 	private void corners$tickWeather(CallbackInfo ci) {
 
 		ServerLevel world = ((ServerLevel) (Object) this);
 
 		if (world.dimension().equals(CornerWorlds.HOARY_CROSSROADS_KEY)) {
 
-			this.worldProperties.setRainTime(0);
-			this.worldProperties.setRaining(true);
-			this.worldProperties.setThunderTime(0);
-			this.worldProperties.setThundering(false);
+			this.serverLevelData.setRainTime(0);
+			this.serverLevelData.setRaining(true);
+			this.serverLevelData.setThunderTime(0);
+			this.serverLevelData.setThundering(false);
 
 			world.setRainLevel(2.0F);
 
@@ -48,10 +48,10 @@ public class ServerWorldMixin {
 
 		} else if (world.dimension().location().getNamespace().equals("corners")) {
 
-			this.worldProperties.setRainTime(0);
-			this.worldProperties.setRaining(false);
-			this.worldProperties.setThunderTime(0);
-			this.worldProperties.setThundering(false);
+			this.serverLevelData.setRainTime(0);
+			this.serverLevelData.setRaining(false);
+			this.serverLevelData.setThunderTime(0);
+			this.serverLevelData.setThundering(false);
 
 			world.setRainLevel(0.0F);
 

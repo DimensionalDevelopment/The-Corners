@@ -21,17 +21,17 @@ public class MinecraftClientMixin {
 	@Shadow
 	public LocalPlayer player;
 	@Shadow
-	public ClientLevel world;
+	public ClientLevel level;
 	@Final
 	@Shadow
 	private Window window;
 
-	@Inject(method = "getMusic", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
 	private void corners$getMusic(CallbackInfoReturnable<Music> ci) {
 
 		if (this.player != null) {
 
-			if (world.dimension().equals(CornerWorlds.COMMUNAL_CORRIDORS_KEY)) {
+			if (level.dimension().equals(CornerWorlds.COMMUNAL_CORRIDORS_KEY)) {
 
 				if (CornerConfig.get().christmas.isChristmas()) {
 					ci

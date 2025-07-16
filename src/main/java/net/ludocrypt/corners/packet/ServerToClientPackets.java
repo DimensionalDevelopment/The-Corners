@@ -1,10 +1,6 @@
 package net.ludocrypt.corners.packet;
 
-import java.util.Comparator;
-import java.util.List;
-
-import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking;
-
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.ludocrypt.corners.access.MusicTrackerAccess;
 import net.ludocrypt.corners.client.sound.LoopingPositionedSoundInstance;
 import net.ludocrypt.corners.init.CornerBlocks;
@@ -20,6 +16,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class ServerToClientPackets {
 
@@ -44,7 +43,7 @@ public class ServerToClientPackets {
 					}
 
 					SoundSystemAccess
-						.get(((SoundManagerAccessor) client.getSoundManager()).getSoundSystem())
+						.get(((SoundManagerAccessor) client.getSoundManager()).getSoundEngine())
 						.stopSoundsAtPosition(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, null,
 							SoundSource.RECORDS);
 					((MusicTrackerAccess) (client.getMusicManager())).getRadioPositions().remove(pos);

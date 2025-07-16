@@ -9,6 +9,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface AbstractDecorationEntityAccessor {
 
 	@Invoker
-	void callSetFacing(Direction facing);
+	void callSetDirection(Direction facing);
 
 }

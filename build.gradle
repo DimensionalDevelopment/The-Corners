@@ -1,10 +1,10 @@
 plugins {
 	id 'maven-publish'
-	alias(libs.plugins.quilt.loom)
+	alias libs.plugins.fabric.loom
 }
 
-archivesBaseName = project.archives_base_name
-version = project.version
+base.archivesName = project.archives_base_name
+version = "$project.version+${libs.versions.minecraft.get()}"
 group = project.maven_group
 
 loom {
@@ -12,6 +12,11 @@ loom {
 }
 
 repositories {
+	mavenLocal()
+	maven {
+		name = "ParchmentMC"
+		url = "https://maven.parchmentmc.org/"
+	}
 	maven {
 		url = 'https://ladysnake.jfrog.io/artifactory/mods'
     }
@@ -34,18 +39,22 @@ repositories {
 
 dependencies {
 	minecraft libs.minecraft
-	mappings loom.officialMojangMappings()
-
-	modImplementation libs.quilt.loader
-
-	modImplementation libs.quilted.fabric.api
+	mappings loom.layered {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip")
+	}
+	modImplementation libs.fabric.loader
+	modImplementation libs.fabric.api
 
 	modImplementation libs.terraformersmc.modmenu
 
 //	modImplementation files ("libs/limlib.jar")
-	includeMod libs.ludocrypt.limlib
-	includeMod libs.ludocrypt.specialmodels
+
 	includeMod libs.shedaniel.cloth
+
+	includeMod libs.ludocrypt.specialmodels
+	includeMod libs.ludocrypt.limlib
+
 }
 
 def includeMod(var dep) {
@@ -54,38 +63,39 @@ def includeMod(var dep) {
 }
 
 processResources {
-	inputs.property "version", version
+	inputs.property "version", project.version
 
-	filesMatching('quilt.mod.json') {
-		expand "version": version
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.encoding = "UTF-8"
 	it.options.release = 17
 }
-
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
-
 	withSourcesJar()
 }
 
 jar {
+	inputs.property "archivesName", project.base.archivesName
+
 	from("LICENSE") {
-		rename { "${it}_${archivesBaseName}" }
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
 
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
 			from components.java
 		}
 	}
 
 	repositories {
+
 	}
 }

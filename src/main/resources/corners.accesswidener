@@ -1,5 +1,6 @@
 accessWidener v1 named
-extendable method net/minecraft/block/FenceBlock canConnectToFence (Lnet/minecraft/block/BlockState;)Z
-extendable method net/minecraft/item/BoatItem createBoatEntity (Lnet/minecraft/world/World;Lnet/minecraft/util/hit/HitResult;)Lnet/minecraft/entity/vehicle/BoatEntity;
-accessible field net/minecraft/client/render/entity/BoatEntityRenderer texturesAndModels Ljava/util/Map;
-mutable field net/minecraft/client/render/entity/BoatEntityRenderer texturesAndModels Ljava/util/Map;
+extendable method net/minecraft/world/level/block/FenceBlock isSameFence (Lnet/minecraft/world/level/block/state/BlockState;)Z
+mutable field net/minecraft/world/level/block/CrossCollisionBlock shapeByIndex [Lnet/minecraft/world/phys/shapes/VoxelShape;
+extendable method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/HitResult;)Lnet/minecraft/world/entity/vehicle/Boat;
+accessible field net/minecraft/client/renderer/entity/BoatRenderer boatResources Ljava/util/Map;
+mutable field net/minecraft/client/renderer/entity/BoatRenderer boatResources Ljava/util/Map;

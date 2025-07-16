@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(Block.class)
 public class BlockMixin {
 
-	@Inject(method = "Lnet/minecraft/block/Block;shouldDrawSide(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;Lnet/minecraft/util/math/BlockPos;)Z", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "shouldRenderFace", at = @At("HEAD"), cancellable = true)
 	private static void corners$shouldDrawSide(BlockState state, BlockGetter world, BlockPos pos, Direction side,
 			BlockPos otherPos, CallbackInfoReturnable<Boolean> ci) {
 		BlockState stateFrom = world.getBlockState(otherPos);

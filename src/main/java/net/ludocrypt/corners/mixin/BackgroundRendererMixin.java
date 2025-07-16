@@ -17,7 +17,7 @@ import net.minecraft.util.Mth;
 @Mixin(FogRenderer.class)
 public abstract class BackgroundRendererMixin {
 
-	@Inject(method = "Lnet/minecraft/client/render/BackgroundRenderer;applyFog(Lnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/BackgroundRenderer$FogType;FZF)V", at = @At("TAIL"))
+	@Inject(method = "setupFog", at = @At("TAIL"))
 	private static void corners$applyFog(Camera camera, FogMode fogType, float viewDistance, boolean thickFog,
 			float tickDelta, CallbackInfo ci) {
 		Minecraft client = Minecraft.getInstance();

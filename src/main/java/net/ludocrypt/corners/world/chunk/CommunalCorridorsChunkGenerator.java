@@ -1,16 +1,9 @@
 package net.ludocrypt.corners.world.chunk;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.block.RadioBlock;
 import net.ludocrypt.corners.init.CornerBlocks;
@@ -21,11 +14,7 @@ import net.ludocrypt.limlib.api.world.LimlibHelper;
 import net.ludocrypt.limlib.api.world.Manipulation;
 import net.ludocrypt.limlib.api.world.NbtGroup;
 import net.ludocrypt.limlib.api.world.chunk.AbstractNbtChunkGenerator;
-import net.ludocrypt.limlib.api.world.maze.CombineMaze;
-import net.ludocrypt.limlib.api.world.maze.DepthFirstMaze;
-import net.ludocrypt.limlib.api.world.maze.DepthFirstMazeSolver;
-import net.ludocrypt.limlib.api.world.maze.DilateMaze;
-import net.ludocrypt.limlib.api.world.maze.MazeComponent;
+import net.ludocrypt.limlib.api.world.maze.*;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.CellState;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Vec2i;
 import net.minecraft.core.BlockPos;
@@ -49,6 +38,12 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Function;
 
 public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 
@@ -75,7 +70,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 	private long mazeSeedModifier;
 
 	public CommunalCorridorsChunkGenerator(BiomeSource biomeSource, NbtGroup group, int mazeWidth, int mazeHeight,
-			int mazeDilation, long mazeSeedModifier) {
+										   int mazeDilation, long mazeSeedModifier) {
 		super(biomeSource, group);
 		this.mazeWidth = mazeWidth;
 		this.mazeHeight = mazeHeight;
@@ -543,8 +538,7 @@ public class CommunalCorridorsChunkGenerator extends AbstractNbtChunkGenerator {
 						generateNbt(region, pos.above(), nbtGroup.pick("communal_corridors_decorated", random), manipulation);
 						return;
 					} else {
-						String group = nbtGroup
-							.chooseGroup(random, "communal_corridors_decorated", "communal_corridors_two_stories");
+						String group = nbtGroup.chooseGroup(random, "communal_corridors_decorated", "communal_corridors_two_stories");
 						generateNbt(region, pos.above(), nbtGroup.pick(group, random), manipulation);
 
 						if (group.equals("communal_corridors_two_stories")) {

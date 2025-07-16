@@ -12,7 +12,7 @@ import net.minecraft.world.entity.vehicle.Boat;
 @Mixin(BoatDispenseItemBehavior.class)
 public class BoatDispenserBehaviorMixin {
 
-	@ModifyVariable(method = "dispenseSilently", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle/BoatEntity;setVariant(Lnet/minecraft/entity/vehicle/BoatEntity$Variant;)V"), allow = 1)
+	@ModifyVariable(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setVariant(Lnet/minecraft/world/entity/vehicle/Boat$Type;)V"), allow = 1)
 	private Boat corners$modifyBoat(Boat original) {
 
 		if ((Object) this instanceof CornerBoatDispensorBehavior boat) {

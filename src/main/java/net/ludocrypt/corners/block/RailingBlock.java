@@ -39,7 +39,6 @@ public class RailingBlock extends FenceBlock {
 		Block.box(0.0, 0.0, 0.0, 16.0, 6.0, 16.0), Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0),
 		Block.box(0.0, 0.0, 0.0, 16.0, 10.0, 16.0), Block.box(0.0, 0.0, 0.0, 16.0, 12.0, 16.0),
 		Block.box(0.0, 0.0, 0.0, 16.0, 14.0, 16.0), Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0) };
-	protected final VoxelShape[] boundingShapes;
 
 	public RailingBlock(Properties settings) {
 		super(settings);

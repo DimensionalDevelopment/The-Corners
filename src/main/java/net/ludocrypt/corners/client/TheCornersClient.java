@@ -1,9 +1,8 @@
 package net.ludocrypt.corners.client;
 
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer;
-import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap;
+import net.fabricmc.api.ClientModInitializer;
 
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.impl.client.rendering.EntityRendererRegistryImpl;
@@ -20,10 +19,10 @@ import net.minecraft.client.renderer.entity.PaintingRenderer;
 public class TheCornersClient implements ClientModInitializer {
 
 	@Override
-	public void onInitializeClient(ModContainer mod) {
+	public void onInitializeClient() {
 		ServerToClientPackets.manageServerToClientPackets();
-		BlockRenderLayerMap
-			.put(RenderType.cutout(), CornerBlocks.SNOWY_GLASS_PANE, CornerBlocks.SNOWY_GLASS,
+		BlockRenderLayerMap.INSTANCE.putBlocks(
+			RenderType.cutout(), CornerBlocks.SNOWY_GLASS_PANE, CornerBlocks.SNOWY_GLASS,
 				CornerBlocks.SNOWY_GLASS_SLAB, CornerBlocks.GAIA_DOOR, CornerBlocks.GAIA_TRAPDOOR, CornerBlocks.GAIA_SAPLING,
 				CornerBlocks.POTTED_GAIA_SAPLING);
 		EntityRendererRegistryImpl.register(CornerEntities.DIMENSIONAL_PAINTING_ENTITY, PaintingRenderer::new);
