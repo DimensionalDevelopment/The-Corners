@@ -1,13 +1,12 @@
 package net.ludocrypt.corners.init;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.ModifyEntries;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
-
+import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.ludocrypt.corners.TheCorners;
 import net.ludocrypt.corners.block.*;
 import net.ludocrypt.corners.entity.CornerBoatDispensorBehavior;
@@ -132,71 +131,52 @@ public class CornerBlocks {
 		FlammableBlockRegistry.getDefaultInstance().add(GAIA_FENCE_GATE, 5, 20);
 		FlammableBlockRegistry.getDefaultInstance().add(GAIA_LEAVES, 30, 60);
 
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(new ModifyEntries() {
+		FuelRegistry.INSTANCE.add(GAIA_FENCE, 300);
+		FuelRegistry.INSTANCE.add(GAIA_FENCE_GATE, 300);
+		FuelRegistry.INSTANCE.add(NYLON_FIBER_BLOCK, 100);
+		FuelRegistry.INSTANCE.add(NYLON_FIBER_STAIRS, 100);
+		FuelRegistry.INSTANCE.add(NYLON_FIBER_SLAB, 100);
+		FuelRegistry.INSTANCE.add(DRYWALL, 300);
+		FuelRegistry.INSTANCE.add(GROWN_RADIO, 300);
+		FuelRegistry.INSTANCE.add(BROKEN_RADIO, 300);
+		FuelRegistry.INSTANCE.add(WOODEN_RADIO, 300);
+		FuelRegistry.INSTANCE.add(TUNED_RADIO, 300);
+		FuelRegistry.INSTANCE.add(DEEP_BOOKSHELF, 300);
 
-			@Override
-			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.accept(STONE_PILLAR);
-				entries.accept(DARK_RAILING);
-				entries.accept(DRYWALL);
-				entries.accept(NYLON_FIBER_BLOCK);
-				entries.accept(NYLON_FIBER_STAIRS);
-				entries.accept(NYLON_FIBER_SLAB);
-				entries.accept(CARVED_GAIA);
-				entries
-					.addAfter(Items.CHERRY_BUTTON, GAIA_LOG, GAIA_WOOD, STRIPPED_GAIA_LOG, STRIPPED_GAIA_WOOD, GAIA_PLANKS,
-						GAIA_STAIRS, GAIA_SLAB, GAIA_FENCE, GAIA_FENCE_GATE, GAIA_DOOR_ITEM, GAIA_TRAPDOOR,
-						GAIA_PRESSURE_PLATE, GAIA_BUTTON);
-			}
+		StrippableBlockRegistry.register(GAIA_LOG, STRIPPED_GAIA_LOG);
+		StrippableBlockRegistry.register(GAIA_WOOD, STRIPPED_GAIA_WOOD);
 
-		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(new ModifyEntries() {
-
-			@Override
-			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.addAfter(Items.PINK_STAINED_GLASS_PANE, SNOWY_GLASS, SNOWY_GLASS_PANE, SNOWY_GLASS_SLAB);
-			}
-
-		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(new ModifyEntries() {
-
-			@Override
-			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.addAfter(Items.CHISELED_BOOKSHELF, DEEP_BOOKSHELF);
-				entries.accept(WOODEN_RADIO);
-				entries.accept(TUNED_RADIO);
-				entries.accept(BROKEN_RADIO);
-				entries.accept(GROWN_RADIO);
-			}
-
-		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(new ModifyEntries() {
-
-			@Override
-			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.addAfter(Items.CHERRY_LOG, GAIA_LOG);
-				entries.addAfter(Items.CHERRY_LEAVES, GAIA_LEAVES);
-				entries.addAfter(Items.CHERRY_SAPLING, GAIA_SAPLING);
-			}
-
-		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(new ModifyEntries() {
-
-			@Override
-			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.addAfter(Items.CHERRY_HANGING_SIGN, GAIA_SIGN_ITEM, GAIA_HANGING_SIGN_ITEM);
-				entries.addAfter(Items.CHISELED_BOOKSHELF, DEEP_BOOKSHELF);
-			}
-
-		});
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(new ModifyEntries() {
-
-			@Override
-			public void modifyEntries(FabricItemGroupEntries entries) {
-				entries.addAfter(Items.CHERRY_CHEST_BOAT, GAIA_BOAT, GAIA_CHEST_BOAT);
-			}
-
-		});
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
+            entries.accept(STONE_PILLAR);
+            entries.accept(DARK_RAILING);
+            entries.accept(DRYWALL);
+            entries.accept(NYLON_FIBER_BLOCK);
+            entries.accept(NYLON_FIBER_STAIRS);
+            entries.accept(NYLON_FIBER_SLAB);
+            entries.accept(CARVED_GAIA);
+            entries
+                .addAfter(Items.CHERRY_BUTTON, GAIA_LOG, GAIA_WOOD, STRIPPED_GAIA_LOG, STRIPPED_GAIA_WOOD, GAIA_PLANKS,
+                    GAIA_STAIRS, GAIA_SLAB, GAIA_FENCE, GAIA_FENCE_GATE, GAIA_DOOR_ITEM, GAIA_TRAPDOOR,
+                    GAIA_PRESSURE_PLATE, GAIA_BUTTON);
+        });
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COLORED_BLOCKS).register(entries -> entries.addAfter(Items.PINK_STAINED_GLASS_PANE, SNOWY_GLASS, SNOWY_GLASS_PANE, SNOWY_GLASS_SLAB));
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(entries -> {
+            entries.addAfter(Items.CHISELED_BOOKSHELF, DEEP_BOOKSHELF);
+            entries.accept(WOODEN_RADIO);
+            entries.accept(TUNED_RADIO);
+            entries.accept(BROKEN_RADIO);
+            entries.accept(GROWN_RADIO);
+        });
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
+            entries.addAfter(Items.CHERRY_LOG, GAIA_LOG);
+            entries.addAfter(Items.CHERRY_LEAVES, GAIA_LEAVES);
+            entries.addAfter(Items.CHERRY_SAPLING, GAIA_SAPLING);
+        });
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(entries -> {
+            entries.addAfter(Items.CHERRY_HANGING_SIGN, GAIA_SIGN_ITEM, GAIA_HANGING_SIGN_ITEM);
+            entries.addAfter(Items.CHISELED_BOOKSHELF, DEEP_BOOKSHELF);
+        });
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> entries.addAfter(Items.CHERRY_CHEST_BOAT, GAIA_BOAT, GAIA_CHEST_BOAT));
 	}
 
 	private static <B extends Block> B getSingle(String id, B block) {

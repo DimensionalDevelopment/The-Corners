@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "corners",
 	"version": "${version}",
-	"name": "The Corners",
+	"name": "The Corners: Renewed",
 	"description": "Explore the corners of the universe, where no man was meant to.\n____________________________\nThe Corners adds interesting and unique dimensions based off of Liminal Space's! Explore wonderous lands all by lighting your way through paintings taking you to unique and fascinating places!\n____________________________\nCredits:\nShai, for helping with the designs of each dimension, and supplying us with beautiful textures!\nKraCactus, for helping with the designs of each dimensions.\nLudoCrypt, me, for developing the whole thing, and most of the OST!\nRacoon Syndrome, too, for helping with the amazingly chilling OST!\n(It's a joint soundtrack)\nBig thank you to Basement Spider for helping with the Radio textures!\nHuge thank you to ImXR24 for the Gaia woodset textures!",
 	"authors": [
 		"LudoCrypt",
@@ -10,7 +10,8 @@
 		"KraCactus",
 		"Racoon Syndrome",
 		"Basement Spider",
-		"ImXR24"
+		"ImXR24",
+		"Waterpicker"
 	],
 	"contact": {
 		"homepage": "https://www.curseforge.com/minecraft/mc-mods/the-corners",
